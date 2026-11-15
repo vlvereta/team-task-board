@@ -134,7 +134,21 @@ export function BoardColumns({
 
   const collisionDetection: CollisionDetection = useCallback((args) => {
     const pointerHits = pointerWithin(args);
-    const hits = pointerHits.length > 0 ? pointerHits : rectIntersection(args);
+    let hits = pointerHits;
+    if (hits.length === 0 && args.pointerCoordinates) {
+      // Pointer in the empty board area below a short column: use the column
+      // whose horizontal band the pointer is in (drop at its end).
+      const { x } = args.pointerCoordinates;
+      const column = args.droppableContainers.find((c) => {
+        const rect = args.droppableRects.get(c.id);
+        return String(c.id).startsWith('column:') && !!rect && x >= rect.left && x <= rect.right;
+      });
+      if (column) {
+        lastOverId.current = column.id;
+        return [{ id: column.id }];
+      }
+    }
+    if (hits.length === 0) hits = rectIntersection(args);
     let overId = getFirstCollision(hits, 'id');
     if (overId != null) {
       const key = String(overId);

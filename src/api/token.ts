@@ -1,26 +1,27 @@
-// The auth token is the one thing the client keeps in localStorage itself.
+// The auth token is the one thing the client keeps in storage itself.
 // Domain data is only ever read and written by the server behind the transport.
+import { appStorage } from '../lib/safeStorage';
 
 const TOKEN_KEY = 'crewboard:token';
 
 export const tokenStore = {
   get(): string | null {
     try {
-      return localStorage.getItem(TOKEN_KEY);
+      return appStorage.getItem(TOKEN_KEY);
     } catch {
       return null;
     }
   },
   set(token: string): void {
     try {
-      localStorage.setItem(TOKEN_KEY, token);
+      appStorage.setItem(TOKEN_KEY, token);
     } catch {
-      /* storage unavailable: session lasts for this page only */
+      /* storage full or unavailable: nothing more we can do */
     }
   },
   clear(): void {
     try {
-      localStorage.removeItem(TOKEN_KEY);
+      appStorage.removeItem(TOKEN_KEY);
     } catch {
       /* ignore */
     }

@@ -9,6 +9,7 @@ import { Button } from '../ui/Button';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { Dialog } from '../ui/Dialog';
 import { validateTaskDraft } from '../../lib/validation';
+import { DiscardChangesDialog } from './DiscardChangesDialog';
 import { UnsavedChangesGuard } from './UnsavedChangesGuard';
 import { TaskFields } from './TaskFields';
 import type { TaskDraft } from './TaskFields';
@@ -52,9 +53,13 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
   // change; block it while there are unsaved edits and ask first.
   const allowLeave = useRef(false);
 
+  // X, Esc, backdrop and Cancel check for unsaved edits themselves (this does
+  // not depend on browser history); browser Back is covered by the guard.
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
   function requestClose() {
-    if (busy || confirming) return;
-    onClose();
+    if (busy || confirming || confirmDiscard) return;
+    if (dirty) setConfirmDiscard(true);
+    else onClose();
   }
 
   function leave() {
@@ -179,6 +184,15 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
         </form>
       </Dialog>
       {dirty && <UnsavedChangesGuard allow={() => allowLeave.current} />}
+      {confirmDiscard && (
+        <DiscardChangesDialog
+          onDiscard={() => {
+            setConfirmDiscard(false);
+            leave();
+          }}
+          onKeep={() => setConfirmDiscard(false)}
+        />
+      )}
       {confirming && (
         <ConfirmDialog
           title="Delete this task?"

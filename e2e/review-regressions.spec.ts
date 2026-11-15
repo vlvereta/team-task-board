@@ -234,7 +234,7 @@ test('browser Back closes the create dialog (asking first if something was typed
   await page.getByRole('link', { name: 'Back to board' }).click();
   await cardByTitle(page, 'Define the new sitemap').click();
   await page.getByRole('button', { name: 'Close task' }).click();
-  await expect(page).toHaveURL(/#\/board$/); // closing steps back in history (async)
+  await expect(page).toHaveURL(/#\/board$/);
   await page.getByRole('button', { name: 'Add a card to To Do' }).click();
   await page.getByRole('dialog', { name: 'New task in To Do' }).getByLabel('Title').fill('Typed');
   // The navigation guard registers in an effect just after the first
@@ -247,12 +247,11 @@ test('browser Back closes the create dialog (asking first if something was typed
   await expect(page.getByLabel('Title')).toHaveValue('Typed');
   await page.goBack();
   await page.getByRole('button', { name: 'Discard changes' }).click();
-  // Back then continues to the previous page, with no stale dialog on top.
-  await expect(page).toHaveURL(/#\/settings$/);
+  // Back then continues to the previous entry, with no stale dialog on top.
+  await expect(page).toHaveURL(/#\/board$/);
   await expect(page.getByRole('dialog')).toHaveCount(0);
 
   // An empty create dialog simply closes on Back.
-  await page.getByRole('link', { name: 'Back to board' }).click();
   await page.getByRole('button', { name: 'Add a card to To Do' }).click();
   await expect(page.getByRole('dialog', { name: 'New task in To Do' })).toBeVisible();
   await page.goBack();
@@ -354,4 +353,86 @@ test('with "My tasks" on, the create dialog says the new task is assigned to you
   await dialog.getByRole('button', { name: 'Create task' }).click();
   await expect(page.getByTestId('toast')).toContainText('hidden while "My tasks" is on');
   await expect(cardByTitle(page, 'Nobody owns this yet')).toHaveCount(0);
+});
+
+// ---- Round 5 regressions ----
+
+test('after the address bar is edited by hand, the unsaved-changes guard still works', async ({
+  page,
+}) => {
+  await demoLogin(page);
+  await page.evaluate(() => {
+    location.hash = '#/settings';
+  });
+  await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
+  await page.evaluate(() => {
+    location.hash = '#/board';
+  });
+  await expect(page.getByTestId('task-card').first()).toBeVisible();
+  await cardByTitle(page, 'Define the new sitemap').click();
+  const dialog = page.getByRole('dialog', { name: 'Edit task' });
+  await dialog.getByLabel('Title').fill('Changed but not saved');
+  await page.waitForTimeout(100); // the guard registers just after the first keystroke
+  await dialog.getByRole('button', { name: 'Close task' }).click();
+  await expect(page.getByRole('alertdialog', { name: 'Discard unsaved changes?' })).toBeVisible();
+  await page.getByRole('button', { name: 'Keep editing' }).click();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('alertdialog', { name: 'Discard unsaved changes?' })).toBeVisible();
+  await page.getByRole('button', { name: 'Discard changes' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+});
+
+test('when the browser blocks storage, the app still works and says nothing will be kept', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'localStorage', {
+      get() {
+        throw new DOMException('denied', 'SecurityError');
+      },
+    });
+  });
+  await page.goto('#/login');
+  await expect(page.getByText('Your browser is blocking site storage')).toBeVisible();
+  await page.getByRole('button', { name: 'Sign in as Ana Silva, Project lead' }).click();
+  await expect(page.getByTestId('task-card').first()).toBeVisible();
+  await page.getByRole('button', { name: 'Add a card to To Do' }).click();
+  await page.getByLabel('Title').fill('Kept in memory');
+  await page.getByRole('button', { name: 'Create task' }).click();
+  await expect(cardByTitle(page, 'Kept in memory')).toBeVisible();
+});
+
+test('double-clicking a card opens it once (one Escape closes it)', async ({ page }) => {
+  await demoLogin(page);
+  await cardByTitle(page, 'Define the new sitemap').dblclick();
+  await expect(page.getByRole('dialog', { name: 'Edit task' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page).toHaveURL(/#\/board$/);
+});
+
+test('dropping in the empty area below a short column lands in that column', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await demoLogin(page);
+  const card = cardByTitle(page, 'Design the homepage hero');
+  const s = (await card.boundingBox())!;
+  const done = (await page.getByTestId('column-done').boundingBox())!;
+  const x = done.x + done.width / 2;
+  const y = Math.min(done.y + done.height + 120, 780);
+  await page.mouse.move(s.x + s.width / 2, s.y + s.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(s.x + s.width / 2 + 10, s.y + s.height / 2 + 10, { steps: 3 });
+  await page.mouse.move(x, y, { steps: 30 });
+  await page.mouse.up();
+  await expect(page.getByTestId('column-done').getByText('Design the homepage hero')).toBeVisible();
+});
+
+test('focus is not lost after a rejected inline rename or after logging out', async ({ page }) => {
+  await demoLogin(page);
+  await page.getByRole('button', { name: /rename board/ }).click();
+  await page.getByLabel('Board name').fill('   ');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('button', { name: /rename board/ })).toBeFocused();
+  await page.getByRole('button', { name: 'Log out' }).click();
+  await expect(page.getByRole('heading', { name: 'Sign in' })).toBeFocused();
 });

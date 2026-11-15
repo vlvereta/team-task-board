@@ -31,6 +31,7 @@ export function BoardName() {
     if (!name || name === board!.name) {
       if (!name) toast.show('The board name cannot be empty.', 'error');
       setEditing(false);
+      requestAnimationFrame(() => buttonRef.current?.focus());
       return;
     }
     setSaving(true);

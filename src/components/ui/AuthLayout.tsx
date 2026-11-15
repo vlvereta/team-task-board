@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { LogoMark } from './Logo';
 
@@ -10,6 +11,15 @@ interface AuthLayoutProps {
 }
 
 export function AuthLayout({ title, subtitle, children, aside }: AuthLayoutProps) {
+  // After logging out (or any navigation that leaves focus on the page body),
+  // start keyboard users at the page heading.
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (!document.activeElement || document.activeElement === document.body) {
+      headingRef.current?.focus({ preventScroll: true });
+    }
+  }, []);
+
   return (
     <div className="min-h-dvh bg-board px-2 py-4 sm:px-4 sm:py-12">
       <main
@@ -21,7 +31,13 @@ export function AuthLayout({ title, subtitle, children, aside }: AuthLayoutProps
         </div>
         <div className={aside ? 'flex flex-col gap-5 md:grid md:grid-cols-2 md:items-start' : ''}>
           <div className="rounded-2xl bg-white p-4 shadow-xl sm:p-8 md:order-1">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
+            <h1
+              ref={headingRef}
+              tabIndex={-1}
+              className="text-2xl font-bold tracking-tight text-slate-900 outline-none"
+            >
+              {title}
+            </h1>
             <p className="mt-1 text-sm text-slate-600">{subtitle}</p>
             <div className="mt-6">{children}</div>
           </div>

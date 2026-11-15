@@ -121,6 +121,18 @@
           "phase": "4b-review",
           "event": "start",
           "note": "round 4 resumed after usage-limit pause"
+        },
+        {
+          "at": "2026-11-15T16:16:15Z",
+          "phase": "4b-review",
+          "event": "note",
+          "note": "round 4 fixes pushed (G1-G6)"
+        },
+        {
+          "at": "2026-11-15T16:16:15Z",
+          "phase": "4b-review",
+          "event": "start",
+          "note": "round 5 (functional)"
         }
       ],
       "delegations": [
@@ -200,6 +212,13 @@
           "purpose": "Round 4 full functional review of the live site (resumed)",
           "start": "2026-11-15T15:40:59Z",
           "end": "2026-11-15T16:10:53Z"
+        },
+        {
+          "id": "functional-r5",
+          "model": "sonnet",
+          "purpose": "Round 5 full functional review of the live site",
+          "start": "2026-11-15T16:16:15Z",
+          "end": "2026-11-15T16:49:26Z"
         }
       ],
       "segments": [

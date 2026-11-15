@@ -1,5 +1,6 @@
 import { Navigate, Outlet, RouterProvider, createHashRouter, useLocation } from 'react-router';
 import { RouteError } from './RouteError';
+import { storagePersistent } from '../lib/safeStorage';
 import { BoardPage } from '../pages/BoardPage';
 import { LoginPage } from '../pages/LoginPage';
 import { SettingsPage } from '../pages/SettingsPage';
@@ -119,6 +120,15 @@ export function App() {
   return (
     <ToastProvider>
       <AuthProvider>
+        {!storagePersistent && (
+          <p
+            role="status"
+            className="bg-amber-100 px-3 py-2 text-center text-sm text-amber-950 sm:px-5"
+          >
+            Your browser is blocking site storage, so the demo works but nothing will be kept after
+            you close this tab.
+          </p>
+        )}
         <RouterProvider router={router} />
       </AuthProvider>
     </ToastProvider>

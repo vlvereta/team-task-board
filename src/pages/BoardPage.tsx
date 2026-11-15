@@ -70,12 +70,14 @@ export function BoardPage() {
     }
   }, [status]);
 
-  const openTask = (id: string) =>
+  const openTask = (id: string) => {
+    // A double-click would otherwise push two history entries.
+    if (window.location.hash.includes('/board/tasks/')) return;
     navigate(
       { pathname: `/board/tasks/${id}`, search: location.search },
       { state: { fromBoard: true } },
     );
-
+  };
   return (
     <main
       ref={mainRef}

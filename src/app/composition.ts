@@ -3,6 +3,7 @@
 // `createFetchTransport(import.meta.env.VITE_API_URL)`. Nothing else changes.
 import { createApiClient } from '../api/client';
 import { tokenStore } from '../api/token';
+import { appStorage } from '../lib/safeStorage';
 import { createMockServer } from '../mock/server';
 
 function parseLatency(raw: string | undefined): [number, number] | undefined {
@@ -23,6 +24,7 @@ function failMovesRequested(): boolean {
 }
 
 const transport = createMockServer({
+  storage: appStorage,
   latency: parseLatency(import.meta.env.VITE_MOCK_LATENCY),
   shouldFail: (req) =>
     req.method === 'PATCH' && /^\/tasks\/[^/]+\/move$/.test(req.path) && failMovesRequested(),
