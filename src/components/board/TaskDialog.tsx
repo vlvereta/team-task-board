@@ -132,12 +132,7 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
             </p>
           </div>
           <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-slate-200 p-5 sm:mt-6 sm:px-6">
-            <Button
-              variant="ghost"
-              className="text-red-700 hover:bg-red-50"
-              onClick={() => setConfirming(true)}
-              disabled={busy}
-            >
+            <Button variant="danger-ghost" onClick={() => setConfirming(true)} disabled={busy}>
               <svg aria-hidden="true" viewBox="0 0 20 20" className="size-4" fill="currentColor">
                 <path
                   fillRule="evenodd"

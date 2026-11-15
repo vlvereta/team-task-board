@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import type { ButtonHTMLAttributes } from 'react';
 import { Spinner } from './Spinner';
 
-type Variant = 'primary' | 'secondary' | 'danger' | 'ghost';
+type Variant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'danger-ghost';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
@@ -14,6 +14,7 @@ const variants: Record<Variant, string> = {
   secondary: 'bg-white text-slate-800 ring-1 ring-inset ring-slate-300 hover:bg-slate-50',
   danger: 'bg-red-700 text-white hover:bg-red-800 shadow-sm',
   ghost: 'text-slate-700 hover:bg-slate-900/5',
+  'danger-ghost': 'text-red-700 hover:bg-red-50',
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
