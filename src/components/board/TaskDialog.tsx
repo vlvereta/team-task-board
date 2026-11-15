@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { useBlocker } from 'react-router';
 import type { FormEvent } from 'react';
 import { errorMessage, isApiError } from '../../api/errors';
 import type { Task } from '../../api/types';
@@ -10,7 +9,7 @@ import { Button } from '../ui/Button';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { Dialog } from '../ui/Dialog';
 import { validateTaskDraft } from '../../lib/validation';
-import { DiscardChangesDialog } from './DiscardChangesDialog';
+import { UnsavedChangesGuard } from './UnsavedChangesGuard';
 import { TaskFields } from './TaskFields';
 import type { TaskDraft } from './TaskFields';
 
@@ -52,10 +51,9 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
   // Any way of leaving (X, Esc, backdrop, Cancel, browser Back) is a route
   // change; block it while there are unsaved edits and ask first.
   const allowLeave = useRef(false);
-  const blocker = useBlocker(() => dirty && !allowLeave.current);
 
   function requestClose() {
-    if (busy || confirming || blocker.state === 'blocked') return;
+    if (busy || confirming) return;
     onClose();
   }
 
@@ -118,7 +116,17 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
 
   return (
     <>
-      <Dialog title="Edit task" onClose={requestClose} showClose closeLabel="Close task">
+      <Dialog
+        title="Edit task"
+        onClose={requestClose}
+        showClose
+        closeLabel="Close task"
+        returnFocus={() =>
+          document.querySelector<HTMLElement>(
+            `[data-testid="column-${task.status}"] [data-testid="task-card"], [data-testid="column-${task.status}"] button`,
+          )
+        }
+      >
         <form
           onSubmit={onSubmit}
           noValidate
@@ -170,9 +178,7 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
           </div>
         </form>
       </Dialog>
-      {blocker.state === 'blocked' && (
-        <DiscardChangesDialog onDiscard={() => blocker.proceed()} onKeep={() => blocker.reset()} />
-      )}
+      {dirty && <UnsavedChangesGuard allow={() => allowLeave.current} />}
       {confirming && (
         <ConfirmDialog
           title="Delete this task?"

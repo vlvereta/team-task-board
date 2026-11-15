@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { useBlocker } from 'react-router';
 import type { FormEvent } from 'react';
 import { errorMessage, isApiError } from '../../api/errors';
 import type { TaskStatus } from '../../api/types';
@@ -11,16 +10,19 @@ import { Dialog } from '../ui/Dialog';
 import { COLUMN_TITLES } from './columns';
 import { validateTaskDraft } from '../../lib/validation';
 import { DiscardChangesDialog } from './DiscardChangesDialog';
+import { UnsavedChangesGuard } from './UnsavedChangesGuard';
 import { TaskFields } from './TaskFields';
 import type { TaskDraft } from './TaskFields';
 
 interface Props {
   status: TaskStatus;
   defaultAssigneeId: string;
+  /** "My tasks" is on. */
+  filtered?: boolean;
   onClose: () => void;
 }
 
-export function CreateTaskDialog({ status, defaultAssigneeId, onClose }: Props) {
+export function CreateTaskDialog({ status, defaultAssigneeId, filtered = false, onClose }: Props) {
   const { user } = useAuth();
   const { users, createTask } = useBoardData();
   const toast = useToast();
@@ -54,7 +56,11 @@ export function CreateTaskDialog({ status, defaultAssigneeId, onClose }: Props) 
         assigneeId: draft.assigneeId || null,
       });
       created.current = true;
-      toast.show(`Added to ${COLUMN_TITLES[draft.status]}.`, 'success');
+      const hidden = filtered && draft.assigneeId !== user?.id;
+      toast.show(
+        `Added to ${COLUMN_TITLES[draft.status]}.${hidden ? ' It is hidden while "My tasks" is on.' : ''}`,
+        'success',
+      );
       onClose();
     } catch (err) {
       if (isApiError(err) && Object.keys(err.fields).length) setErrors(err.fields);
@@ -68,7 +74,6 @@ export function CreateTaskDialog({ status, defaultAssigneeId, onClose }: Props) 
 
   // Leaving the page (e.g. browser Back) with a half-written task asks too.
   const created = useRef(false);
-  const blocker = useBlocker(() => dirty && !created.current);
 
   /** Close, but ask first if something has been typed. */
   function requestClose() {
@@ -118,9 +123,7 @@ export function CreateTaskDialog({ status, defaultAssigneeId, onClose }: Props) 
       {confirmDiscard && (
         <DiscardChangesDialog onDiscard={onClose} onKeep={() => setConfirmDiscard(false)} />
       )}
-      {blocker.state === 'blocked' && (
-        <DiscardChangesDialog onDiscard={() => blocker.proceed()} onKeep={() => blocker.reset()} />
-      )}
+      {dirty && <UnsavedChangesGuard allow={() => created.current} />}
     </>
   );
 }

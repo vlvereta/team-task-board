@@ -11,7 +11,13 @@ export function TaskRoute() {
   const { status, tasks } = useBoardData();
   const navigate = useNavigate();
   const location = useLocation();
-  const close = () => navigate({ pathname: '/board', search: location.search });
+  const openedFromBoard = (location.state as { fromBoard?: boolean } | null)?.fromBoard === true;
+  // Closing undoes the navigation that opened the dialog (so Back doesn't
+  // reopen it); a dialog opened from a deep link replaces itself with the board.
+  const close = () =>
+    openedFromBoard
+      ? navigate(-1)
+      : navigate({ pathname: '/board', search: location.search }, { replace: true });
 
   if (status === 'loading') {
     return (

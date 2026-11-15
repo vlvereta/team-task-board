@@ -23,6 +23,8 @@ interface DialogProps {
   /** Show an X button in the header. */
   showClose?: boolean;
   closeLabel?: string;
+  /** Where focus goes on close if the element that opened the dialog is gone. */
+  returnFocus?: () => HTMLElement | null;
 }
 
 /**
@@ -40,15 +42,18 @@ export function Dialog({
   description,
   showClose = false,
   closeLabel = 'Close',
+  returnFocus,
 }: DialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descId = useId();
   const onCloseRef = useRef(onClose);
 
+  const returnFocusRef = useRef(returnFocus);
   useEffect(() => {
     onCloseRef.current = onClose;
-  }, [onClose]);
+    returnFocusRef.current = returnFocus;
+  }, [onClose, returnFocus]);
 
   useEffect(() => {
     const opener = document.activeElement as HTMLElement | null;
@@ -64,6 +69,7 @@ export function Dialog({
       document.body.style.overflow = overflow;
       // Return focus to whatever opened the dialog, if it is still on the page.
       if (opener && document.contains(opener)) opener.focus();
+      else returnFocusRef.current?.()?.focus();
     };
     // Run once on mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps

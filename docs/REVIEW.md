@@ -173,3 +173,16 @@ Objective findings (round 3 is the last design round; everything objective was f
 Matters of taste and things the reviewer was unsure about are in `docs/UI-REVIEW-CHECKLIST.md` (marked **Needs your eye**).
 
 **Found while capturing the owner-checklist screenshots (functional, fixed):** a non-401 failure of the session check (server or network error) signed the user out and cleared their session. It now keeps the session and shows "We can't reach the server" with Try again and Log out. Regression test: `e2e/review-regressions.spec.ts` ("a server error during the session check keeps the session and offers a retry").
+
+## Round 3: functional re-review (live site)
+
+Acceptance: **34 PASS, 0 FAIL, 0 PARTIAL**; lint, typecheck and build exit 0; no console output in normal use. F1–F9 re-verified (F5 for the edit dialog; the create dialog is M1 below). Four new issues, all fixed with regression tests in `e2e/review-regressions.spec.ts`:
+
+| # | Severity | Issue | Fix |
+|---|---|---|---|
+| M1 | minor | Browser Back from an open "New task" dialog could stack a stale task dialog on top, and keep the typed text after "Discard changes". | The create dialog belongs to the history entry it was opened on and closes on any navigation; Back with typed text asks first (Keep editing / Discard). |
+| M2 | trivial | Back reopened a task dialog that had just been closed (closing pushed a new history entry). | Closing a dialog opened from the board steps back in history; a dialog opened from a deep link replaces itself with the board. |
+| M3 | trivial | React Router console warning when the address bar was edited by hand while a task dialog was open. | The navigation guard is only registered while a dialog has unsaved changes. **Known limit:** editing the address bar by hand *while* there are unsaved edits still drops them with that warning, because a hand-edited hash change cannot be blocked with hash routing; the browser's "leave site?" prompt now covers reloads and leaving the site with unsaved dialog edits. A deliberately malformed task id in the URL (`%E0%A4%A`) logs React Router's own "could not be decoded" warning; this is not normal use and the app still shows "Task not found". |
+| M4 | trivial | After deleting from the dialog by keyboard, focus fell to the page body. | When the element that opened a dialog no longer exists, focus moves to the first card (or the "Add a card" button) of the task's column. |
+
+Also from this round's notes: creating a task for someone else while "My tasks" is on now says the new card is hidden by the filter.

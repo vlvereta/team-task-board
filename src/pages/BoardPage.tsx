@@ -41,7 +41,9 @@ export function BoardPage() {
   const { user } = useAuth();
   const { status, loadError, reload, tasks, users, moveTask } = useBoardData();
   const [mine, setMine] = useMyTasksFilter();
-  const [creatingIn, setCreatingIn] = useState<TaskStatus | null>(null);
+  // The create dialog belongs to the history entry it was opened on, so any
+  // navigation (e.g. browser Back) closes it.
+  const [creating, setCreating] = useState<{ status: TaskStatus; key: string } | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -50,8 +52,17 @@ export function BoardPage() {
     [mine, user, tasks],
   );
 
+  const creatingIn = creating && creating.key === location.key ? creating.status : null;
+  const setCreatingIn = (status: TaskStatus | null) =>
+    setCreating(status ? { status, key: location.key } : null);
+
+  // Remember that the dialog was opened from the board, so closing it can
+  // step back in history instead of adding a new entry.
   const openTask = (id: string) =>
-    navigate({ pathname: `/board/tasks/${id}`, search: location.search });
+    navigate(
+      { pathname: `/board/tasks/${id}`, search: location.search },
+      { state: { fromBoard: true } },
+    );
 
   return (
     <main className="flex min-h-0 flex-1 flex-col" aria-label="Board">
@@ -107,6 +118,7 @@ export function BoardPage() {
         <CreateTaskDialog
           status={creatingIn}
           defaultAssigneeId={mine && user ? user.id : ''}
+          filtered={mine}
           onClose={() => setCreatingIn(null)}
         />
       )}

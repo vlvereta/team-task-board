@@ -211,3 +211,95 @@ test('a server error during the session check keeps the session and offers a ret
   await expect(page.getByTestId('task-card').first()).toBeVisible();
   await expect(page).toHaveURL(/#\/board/);
 });
+
+// ---- Round 3 regressions ----
+
+test('closing a task dialog does not leave a history entry that reopens it on Back', async ({
+  page,
+}) => {
+  await demoLogin(page);
+  await cardByTitle(page, 'Define the new sitemap').click();
+  await page.getByRole('button', { name: 'Close task' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.goBack();
+  await expect(page.getByRole('dialog', { name: 'Edit task' })).toHaveCount(0);
+});
+
+test('browser Back closes the create dialog (asking first if something was typed)', async ({
+  page,
+}) => {
+  await demoLogin(page);
+  // Give the board an in-app history entry behind it (Settings → Board).
+  await page.getByRole('link', { name: 'Settings' }).click();
+  await page.getByRole('link', { name: 'Back to board' }).click();
+  await cardByTitle(page, 'Define the new sitemap').click();
+  await page.getByRole('button', { name: 'Close task' }).click();
+  await expect(page).toHaveURL(/#\/board$/); // closing steps back in history (async)
+  await page.getByRole('button', { name: 'Add a card to To Do' }).click();
+  await page.getByRole('dialog', { name: 'New task in To Do' }).getByLabel('Title').fill('Typed');
+  // The navigation guard registers in an effect just after the first
+  // keystroke; a person cannot press Back within those few milliseconds.
+  await page.waitForTimeout(100);
+  await page.goBack();
+  const confirm = page.getByRole('alertdialog', { name: 'Discard unsaved changes?' });
+  await expect(confirm).toBeVisible();
+  await confirm.getByRole('button', { name: 'Keep editing' }).click();
+  await expect(page.getByLabel('Title')).toHaveValue('Typed');
+  await page.goBack();
+  await page.getByRole('button', { name: 'Discard changes' }).click();
+  // Back then continues to the previous page, with no stale dialog on top.
+  await expect(page).toHaveURL(/#\/settings$/);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+
+  // An empty create dialog simply closes on Back.
+  await page.getByRole('link', { name: 'Back to board' }).click();
+  await page.getByRole('button', { name: 'Add a card to To Do' }).click();
+  await expect(page.getByRole('dialog', { name: 'New task in To Do' })).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+});
+
+test('editing the address bar while a task dialog is open logs no router warning', async ({
+  page,
+}) => {
+  // The console guard fixture fails the test on any warning.
+  await demoLogin(page);
+  await cardByTitle(page, 'Define the new sitemap').click();
+  await expect(page.getByRole('dialog', { name: 'Edit task' })).toBeVisible();
+  await page.evaluate(() => {
+    location.hash = '#/settings';
+  });
+  await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
+});
+
+test('after deleting from the dialog by keyboard, focus lands on the board, not the page body', async ({
+  page,
+}) => {
+  await demoLogin(page);
+  await cardByTitle(page, 'Define the new sitemap').focus();
+  await page.keyboard.press('Enter');
+  const dialog = page.getByRole('dialog', { name: 'Edit task' });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button', { name: 'Delete' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('alertdialog')).toBeVisible();
+  await page.getByRole('button', { name: 'Delete task' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => document.activeElement?.tagName)).not.toBe('BODY');
+  await expect(page.locator('[data-testid="column-done"] :focus')).toHaveCount(1);
+});
+
+test('leaving the site with a half-written task asks the browser to confirm', async ({ page }) => {
+  await demoLogin(page);
+  await page.getByRole('button', { name: 'Add a card to To Do' }).click();
+  await page.getByRole('dialog', { name: 'New task in To Do' }).getByLabel('Title').fill('Typed');
+  const prompt = page.waitForEvent('dialog');
+  void page.reload().catch(() => {});
+  const dialog = await prompt;
+  expect(dialog.type()).toBe('beforeunload');
+  await dialog.dismiss();
+  await expect(
+    page.getByRole('dialog', { name: 'New task in To Do' }).getByLabel('Title'),
+  ).toHaveValue('Typed');
+});
