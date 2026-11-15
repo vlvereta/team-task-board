@@ -14,7 +14,16 @@ export default tseslint.config(
     rules: {
       ...reactHooks.configs.flat.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', ignoreRestSiblings: true },
+      ],
     },
+  },
+  {
+    // Context modules export a provider and its hook together, by design.
+    files: ['src/app/*Context.tsx'],
+    rules: { 'react-refresh/only-export-components': 'off' },
   },
   {
     files: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'e2e/**'],

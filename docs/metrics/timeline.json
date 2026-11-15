@@ -34,7 +34,15 @@
           "note": "scaffold"
         }
       ],
-      "delegations": []
+      "delegations": [
+        {
+          "id": "mock-server",
+          "model": "sonnet",
+          "purpose": "Mock server (router, store, seed, crypto, handlers) with unit tests against docs/API.md",
+          "start": "2026-11-15T11:32:29Z",
+          "end": "2026-11-15T11:36:49Z"
+        }
+      ]
     }
   ]
 }
