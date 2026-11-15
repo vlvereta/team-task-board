@@ -93,6 +93,16 @@ export function BoardDataProvider({ children }: { children: ReactNode }) {
     void load('initial');
   }, [load]);
 
+  // Warn before leaving while a change is still being saved, so a reload in
+  // the middle of a drag or edit doesn't silently drop it.
+  useEffect(() => {
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (pending.current > 0) e.preventDefault();
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, []);
+
   // Pick up changes made in another tab when this one regains focus.
   useEffect(() => {
     const onVisible = () => {
