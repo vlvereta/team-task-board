@@ -303,3 +303,55 @@ test('leaving the site with a half-written task asks the browser to confirm', as
     page.getByRole('dialog', { name: 'New task in To Do' }).getByLabel('Title'),
   ).toHaveValue('Typed');
 });
+
+// ---- Round 4 regressions (the drag crash is covered by drag-stability.spec.ts) ----
+
+test('toasts are cleared on log out', async ({ page }) => {
+  await demoLogin(page);
+  await page.getByRole('link', { name: 'Settings' }).click();
+  await page.getByLabel('Board name').fill('Renamed board');
+  await page.getByRole('button', { name: 'Save' }).nth(1).click();
+  await expect(page.getByTestId('toast')).toContainText('Board renamed.');
+  await page.getByRole('button', { name: 'Log out' }).click();
+  await expect(page).toHaveURL(/#\/login/);
+  await expect(page.getByTestId('toast')).toHaveCount(0);
+});
+
+test('after a keyboard sign-in, focus moves to the board instead of the page body', async ({
+  page,
+}) => {
+  await page.goto('#/login');
+  await page.getByRole('button', { name: 'Sign in as Ana Silva, Project lead' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('task-card').first()).toBeVisible();
+  await expect(page.getByRole('main', { name: 'Board' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect.poll(() => page.evaluate(() => document.activeElement?.tagName)).not.toBe('BODY');
+});
+
+test('sign-up rejects a password made only of spaces', async ({ page }) => {
+  await page.goto('#/signup');
+  await page.getByLabel('Name').fill('Space Person');
+  await page.getByLabel('Email').fill('spaces@example.com');
+  await page.getByLabel('Password').fill('         ');
+  await page.getByRole('button', { name: 'Create account' }).click();
+  await expect(page.getByText('A password cannot be only spaces.')).toBeVisible();
+  await expect(page).toHaveURL(/#\/signup/);
+});
+
+test('with "My tasks" on, the create dialog says the new task is assigned to you', async ({
+  page,
+}) => {
+  await demoLogin(page);
+  await page.getByRole('button', { name: 'My tasks' }).click();
+  await page.getByRole('button', { name: 'Add a card to To Do' }).click();
+  const dialog = page.getByRole('dialog', { name: 'New task in To Do' });
+  await expect(dialog.getByLabel('Assignee')).toHaveValue('u-ana');
+  await expect(dialog.getByText('Assigned to you because "My tasks" is on.')).toBeVisible();
+  await dialog.getByLabel('Assignee').selectOption({ label: 'Unassigned' });
+  await expect(dialog.getByText('Assigned to you because')).toHaveCount(0);
+  await dialog.getByLabel('Title').fill('Nobody owns this yet');
+  await dialog.getByRole('button', { name: 'Create task' }).click();
+  await expect(page.getByTestId('toast')).toContainText('hidden while "My tasks" is on');
+  await expect(cardByTitle(page, 'Nobody owns this yet')).toHaveCount(0);
+});

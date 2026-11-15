@@ -40,6 +40,7 @@ export function checkEmail(value: unknown): string | { error: string } {
 
 export function checkPassword(value: unknown): string | { error: string } {
   if (typeof value !== 'string' || value === '') return { error: 'Enter a password.' };
+  if (value.trim() === '') return { error: 'A password cannot be only spaces.' };
   if (value.length < PASSWORD_MIN_LENGTH) {
     return { error: `Use at least ${PASSWORD_MIN_LENGTH} characters.` };
   }

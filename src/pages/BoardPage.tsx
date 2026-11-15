@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import type { TaskStatus } from '../api/types';
 import { useAuth } from '../app/AuthContext';
@@ -58,6 +58,18 @@ export function BoardPage() {
 
   // Remember that the dialog was opened from the board, so closing it can
   // step back in history instead of adding a new entry.
+  // After signing in (or any navigation that leaves focus on the page body),
+  // move focus to the board so keyboard users start in the right place.
+  const mainRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (
+      status === 'ready' &&
+      (!document.activeElement || document.activeElement === document.body)
+    ) {
+      mainRef.current?.focus({ preventScroll: true });
+    }
+  }, [status]);
+
   const openTask = (id: string) =>
     navigate(
       { pathname: `/board/tasks/${id}`, search: location.search },
@@ -65,7 +77,12 @@ export function BoardPage() {
     );
 
   return (
-    <main className="flex min-h-0 flex-1 flex-col" aria-label="Board">
+    <main
+      ref={mainRef}
+      tabIndex={-1}
+      className="flex min-h-0 flex-1 flex-col outline-none"
+      aria-label="Board"
+    >
       {mine && (
         <div
           className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-amber-300 bg-amber-100 px-3 py-1 text-sm text-amber-950 sm:px-5"

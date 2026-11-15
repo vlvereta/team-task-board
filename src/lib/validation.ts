@@ -15,6 +15,7 @@ export function validateSignup(input: { name: string; email: string; password: s
   else if (!EMAIL_PATTERN.test(email))
     fields.email = 'Enter a valid email address, like name@example.com.';
   if (!input.password) fields.password = 'Enter a password.';
+  else if (!input.password.trim()) fields.password = 'A password cannot be only spaces.';
   else if (input.password.length < PASSWORD_MIN_LENGTH)
     fields.password = `Use at least ${PASSWORD_MIN_LENGTH} characters.`;
   return fields;

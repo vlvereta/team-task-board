@@ -104,6 +104,12 @@ export function CreateTaskDialog({ status, defaultAssigneeId, filtered = false, 
               titleRef={titleRef}
               disabled={busy}
             />
+            {filtered && defaultAssigneeId && draft.assigneeId === defaultAssigneeId && (
+              <p className="mt-2 text-xs text-slate-600">
+                Assigned to you because "My tasks" is on. Change the assignee if it's for someone
+                else.
+              </p>
+            )}
             {formError && (
               <p role="alert" className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
                 {formError}

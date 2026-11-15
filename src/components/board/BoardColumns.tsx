@@ -4,7 +4,10 @@ import {
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
-  closestCorners,
+  closestCenter,
+  getFirstCollision,
+  pointerWithin,
+  rectIntersection,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
@@ -13,11 +16,12 @@ import type {
   DragEndEvent,
   DragOverEvent,
   DragStartEvent,
+  CollisionDetection,
   UniqueIdentifier,
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import type { KeyboardCoordinateGetter } from '@dnd-kit/core';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TASK_STATUSES } from '../../api/types';
 import type { Task, TaskStatus, User } from '../../api/types';
 import { groupByStatus, positionInFullColumn } from '../../lib/ordering';
@@ -98,6 +102,10 @@ export function BoardColumns({
 }: BoardColumnsProps) {
   const reducedMotion = useReducedMotion();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const activeIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    activeIdRef.current = activeId;
+  }, [activeId]);
   // While dragging, the visible column order is kept locally so cards can
   // move between columns before the drop is committed.
   const [dragCols, setDragCols] = useState<Columns | null>(null);
@@ -106,6 +114,51 @@ export function BoardColumns({
   const tasksById = useMemo(() => new Map(tasks.map((t) => [t.id, t])), [tasks]);
   const visibleCols = useMemo(() => idsByStatus(visible), [visible]);
   const cols = dragCols ?? visibleCols;
+
+  // Collision handling for several sortable lists (the dnd-kit
+  // "multiple containers" pattern). Without it, moving a card into another
+  // column changes the layout, the next collision check can point back at the
+  // old column, and the card ping-pongs until React stops with "Maximum update
+  // depth exceeded".
+  const colsRef = useRef(cols);
+  const lastOverId = useRef<UniqueIdentifier | null>(null);
+  const justMovedColumn = useRef(false);
+  useEffect(() => {
+    colsRef.current = cols;
+    // Let the layout settle for a frame after a card changes column.
+    const frame = requestAnimationFrame(() => {
+      justMovedColumn.current = false;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [cols]);
+
+  const collisionDetection: CollisionDetection = useCallback((args) => {
+    const pointerHits = pointerWithin(args);
+    const hits = pointerHits.length > 0 ? pointerHits : rectIntersection(args);
+    let overId = getFirstCollision(hits, 'id');
+    if (overId != null) {
+      const key = String(overId);
+      if (key.startsWith('column:')) {
+        // Over a column: pick the closest card inside that column, if any.
+        const ids = colsRef.current[key.slice('column:'.length) as TaskStatus] ?? [];
+        if (ids.length > 0) {
+          const closest = closestCenter({
+            ...args,
+            droppableContainers: args.droppableContainers.filter(
+              (c) => c.id !== overId && ids.includes(String(c.id)),
+            ),
+          })[0]?.id;
+          if (closest != null) overId = closest;
+        }
+      }
+      lastOverId.current = overId;
+      return [{ id: overId }];
+    }
+    // Right after a column change the card may briefly be over nothing;
+    // keep the previous target instead of jumping back.
+    if (justMovedColumn.current && activeIdRef.current) lastOverId.current = activeIdRef.current;
+    return lastOverId.current != null ? [{ id: lastOverId.current }] : [];
+  }, []);
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
@@ -152,30 +205,33 @@ export function BoardColumns({
   };
 
   function handleDragStart(e: DragStartEvent) {
+    lastOverId.current = null;
+    justMovedColumn.current = false;
     setActiveId(String(e.active.id));
     setDragCols(visibleCols);
   }
 
   function handleDragOver({ active, over }: DragOverEvent) {
     if (!over) return;
-    setDragCols((prev) => {
-      const c = prev ?? visibleCols;
-      const from = columnOf(active.id, c);
-      const to = columnOf(over.id, c);
-      if (!from || !to || from === to) return prev;
-      const activeKey = String(active.id);
-      const overKey = String(over.id);
-      const target = c[to].filter((id) => id !== activeKey);
-      const overIndex = target.indexOf(overKey);
-      let insertAt = overIndex >= 0 ? overIndex : target.length;
-      // Dropping on the lower half of a card puts it after that card.
-      if (overIndex >= 0 && over.rect && active.rect.current.translated) {
-        const below = active.rect.current.translated.top > over.rect.top + over.rect.height / 2;
-        if (below) insertAt += 1;
-      }
-      target.splice(insertAt, 0, activeKey);
-      return { ...c, [from]: c[from].filter((id) => id !== activeKey), [to]: target };
-    });
+    if (justMovedColumn.current) return;
+    const c = dragCols ?? visibleCols;
+    const from = columnOf(active.id, c);
+    const to = columnOf(over.id, c);
+    if (!from || !to || from === to) return;
+    const activeKey = String(active.id);
+    const overKey = String(over.id);
+    const target = c[to].filter((id) => id !== activeKey);
+    const overIndex = target.indexOf(overKey);
+    let insertAt = overIndex >= 0 ? overIndex : target.length;
+    // Over the lower half of a card: go after it.
+    if (overIndex >= 0 && over.rect && active.rect.current.translated) {
+      const activeCenter =
+        active.rect.current.translated.top + active.rect.current.translated.height / 2;
+      if (activeCenter > over.rect.top + over.rect.height / 2) insertAt += 1;
+    }
+    target.splice(insertAt, 0, activeKey);
+    justMovedColumn.current = true;
+    setDragCols({ ...c, [from]: c[from].filter((id) => id !== activeKey), [to]: target });
   }
 
   function handleDragEnd({ active, over }: DragEndEvent) {
@@ -203,7 +259,10 @@ export function BoardColumns({
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={collisionDetection}
+      // Gentler edge scrolling, so a card held near the screen edge on a
+      // phone moves one column at a time instead of racing to the end.
+      autoScroll={{ threshold: { x: 0.12, y: 0.15 }, acceleration: 3 }}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}

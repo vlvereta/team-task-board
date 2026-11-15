@@ -1,4 +1,5 @@
 import { Navigate, Outlet, RouterProvider, createHashRouter, useLocation } from 'react-router';
+import { RouteError } from './RouteError';
 import { BoardPage } from '../pages/BoardPage';
 import { LoginPage } from '../pages/LoginPage';
 import { SettingsPage } from '../pages/SettingsPage';
@@ -89,24 +90,29 @@ function PublicOnly() {
 // while they hold unsaved changes (useBlocker).
 const router = createHashRouter([
   {
-    element: <PublicOnly />,
-    children: [
-      { path: '/login', element: <LoginPage /> },
-      { path: '/signup', element: <SignupPage /> },
-    ],
-  },
-  {
-    element: <RequireAuth />,
+    errorElement: <RouteError />,
     children: [
       {
-        path: '/board',
-        element: <BoardPage />,
-        children: [{ path: 'tasks/:taskId', element: <TaskRoute /> }],
+        element: <PublicOnly />,
+        children: [
+          { path: '/login', element: <LoginPage /> },
+          { path: '/signup', element: <SignupPage /> },
+        ],
       },
-      { path: '/settings', element: <SettingsPage /> },
+      {
+        element: <RequireAuth />,
+        children: [
+          {
+            path: '/board',
+            element: <BoardPage />,
+            children: [{ path: 'tasks/:taskId', element: <TaskRoute /> }],
+          },
+          { path: '/settings', element: <SettingsPage /> },
+        ],
+      },
+      { path: '*', element: <Navigate to="/board" replace /> },
     ],
   },
-  { path: '*', element: <Navigate to="/board" replace /> },
 ]);
 
 export function App() {

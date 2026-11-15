@@ -18,6 +18,8 @@ interface Toast {
 
 interface ToastContextValue {
   show: (message: string, tone?: Tone) => void;
+  /** Remove every message (e.g. on sign-out). */
+  clear: () => void;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -58,7 +60,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     return () => map.forEach((t) => window.clearTimeout(t));
   }, []);
 
-  const value = useMemo(() => ({ show }), [show]);
+  const clear = useCallback(() => {
+    timers.current.forEach((t) => window.clearTimeout(t));
+    timers.current.clear();
+    setToasts([]);
+  }, []);
+
+  const value = useMemo(() => ({ show, clear }), [show, clear]);
 
   return (
     <ToastContext.Provider value={value}>

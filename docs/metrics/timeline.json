@@ -115,6 +115,12 @@
           "phase": "4b-review",
           "event": "note",
           "note": "round 4 functional review stopped unfinished: usage limit reached"
+        },
+        {
+          "at": "2026-11-15T15:40:59Z",
+          "phase": "4b-review",
+          "event": "start",
+          "note": "round 4 resumed after usage-limit pause"
         }
       ],
       "delegations": [
@@ -187,6 +193,37 @@
           "purpose": "Round 4 full functional review of the live site",
           "start": "2026-11-15T13:47:14Z",
           "end": "2026-11-15T13:48:13Z"
+        },
+        {
+          "id": "functional-r4b",
+          "model": "sonnet",
+          "purpose": "Round 4 full functional review of the live site (resumed)",
+          "start": "2026-11-15T15:40:59Z",
+          "end": "2026-11-15T16:10:53Z"
+        }
+      ],
+      "segments": [
+        {
+          "name": "build (plan, implement, local tests, round-0 review start)",
+          "from": "2026-11-15T11:26:55Z",
+          "to": "2026-11-15T11:52:14Z"
+        },
+        {
+          "name": "first deployment (repo, Pages, CI/deploy, live smoke)",
+          "from": "2026-11-15T11:52:14Z",
+          "to": "2026-11-15T11:55:17Z"
+        },
+        {
+          "name": "review and improve (rounds 0-4 on the live site)",
+          "from": "2026-11-15T11:55:17Z",
+          "to": null
+        }
+      ],
+      "pauses": [
+        {
+          "from": "2026-11-15T13:48:13Z",
+          "to": "2026-11-15T15:40:59Z",
+          "reason": "Claude usage limit reached; resumed after reset"
         }
       ]
     }

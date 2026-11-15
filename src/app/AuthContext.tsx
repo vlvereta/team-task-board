@@ -4,6 +4,7 @@ import { isApiError } from '../api/errors';
 import { tokenStore } from '../api/token';
 import type { LoginInput, RegisterInput, User } from '../api/types';
 import { api, onSessionExpired } from './composition';
+import { useToast } from './ToastContext';
 
 /** `unreachable`: we hold a token but could not check it (not a 401). */
 type AuthStatus = 'checking' | 'signedOut' | 'signedIn' | 'unreachable';
@@ -32,12 +33,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<User | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  const signOut = useCallback((message: string | null) => {
-    tokenStore.clear();
-    setUserState(null);
-    setStatus('signedOut');
-    setNotice(message);
-  }, []);
+  const { clear: clearToasts } = useToast();
+
+  const signOut = useCallback(
+    (message: string | null) => {
+      clearToasts();
+      tokenStore.clear();
+      setUserState(null);
+      setStatus('signedOut');
+      setNotice(message);
+    },
+    [clearToasts],
+  );
 
   const refresh = useCallback(async () => {
     if (!tokenStore.get()) {

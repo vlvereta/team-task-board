@@ -21,6 +21,15 @@ describe('POST /auth/register', () => {
     expect(me.body.user.id).toBe(res.body.user.id);
   });
 
+  it('rejects a password made only of spaces (400)', async () => {
+    const { server } = makeServer();
+    const res = await call(server, 'POST', '/auth/register', {
+      body: { ...valid, password: '         ' },
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.fields.password).toMatch(/only spaces/);
+  });
+
   it('trims the name', async () => {
     const { server } = makeServer();
     const res = await call(server, 'POST', '/auth/register', {
