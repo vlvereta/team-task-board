@@ -3,8 +3,8 @@ import type { FormEvent } from 'react';
 import { Link } from 'react-router';
 import { useAuth } from '../app/AuthContext';
 import { errorMessage, isApiError } from '../api/errors';
-import { PASSWORD_MIN_LENGTH } from '../api/types';
-import { validateSignup } from '../lib/validation';
+import { NAME_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '../api/types';
+import { lengthHint, validateSignup } from '../lib/validation';
 import { AuthLayout } from '../components/ui/AuthLayout';
 import { Button } from '../components/ui/Button';
 import { TextField } from '../components/ui/Field';
@@ -71,7 +71,8 @@ export function SignupPage() {
           value={values.name}
           onChange={set('name')}
           error={fields.name}
-          maxLength={60}
+          hint={lengthHint(values.name.length, NAME_MAX_LENGTH)}
+          maxLength={NAME_MAX_LENGTH}
         />
         <TextField
           ref={emailRef}

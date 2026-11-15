@@ -90,3 +90,99 @@ test('title and description show a character count near their limits', async ({ 
   await description.fill('y'.repeat(4500));
   await expect(description).toHaveAccessibleDescription('4500 / 5000 characters');
 });
+
+// ---- Round 2 regressions ----
+
+test('browser Back with unsaved edits asks before discarding them', async ({ page }) => {
+  await demoLogin(page);
+  await cardByTitle(page, 'Define the new sitemap').click();
+  const dialog = page.getByRole('dialog', { name: 'Edit task' });
+  await dialog.getByLabel('Description').fill('Unsaved words');
+  await page.goBack();
+  const confirm = page.getByRole('alertdialog', { name: 'Discard unsaved changes?' });
+  await expect(confirm).toBeVisible();
+  await confirm.getByRole('button', { name: 'Keep editing' }).click();
+  await expect(dialog.getByLabel('Description')).toHaveValue('Unsaved words');
+  await expect(page).toHaveURL(/#\/board\/tasks\//);
+  await page.goBack();
+  await page.getByRole('button', { name: 'Discard changes' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page).toHaveURL(/#\/board$/);
+});
+
+test('two tabs editing the same task: the second save gets a conflict instead of overwriting', async ({
+  page,
+  context,
+}) => {
+  await demoLogin(page);
+  const title = 'Set up staging environment';
+  await cardByTitle(page, title).click();
+  const dialog = page.getByRole('dialog', { name: 'Edit task' });
+
+  const other = await context.newPage();
+  await other.goto('#/board');
+  await cardByTitle(other, title).click();
+  const otherDialog = other.getByRole('dialog', { name: 'Edit task' });
+  await otherDialog.getByLabel('Description').fill('Saved first, in the other tab');
+  await otherDialog.getByRole('button', { name: 'Save changes' }).click();
+  await expect(other.getByRole('dialog', { name: 'Edit task' })).toBeHidden();
+  await other.close();
+
+  await dialog.getByLabel('Description').fill('Saved second, in this tab');
+  await dialog.getByRole('button', { name: 'Save changes' }).click();
+  await expect(dialog.getByRole('alert')).toContainText('Someone else changed this task');
+  // Nothing was overwritten.
+  await page.reload();
+  await page
+    .getByRole('button', { name: 'Discard changes' })
+    .click({ timeout: 2000 })
+    .catch(() => {});
+  await expect(
+    page.getByRole('dialog', { name: 'Edit task' }).getByLabel('Description'),
+  ).toHaveValue('Saved first, in the other tab');
+});
+
+test('name fields show a character count near their limits', async ({ page }) => {
+  await page.goto('#/signup');
+  const name = page.getByLabel('Name');
+  await name.fill('n'.repeat(50));
+  await expect(name).toHaveAccessibleDescription('50 / 60 characters');
+  await demoLogin(page);
+  await page.getByRole('link', { name: 'Settings' }).click();
+  const boardName = page.getByLabel('Board name');
+  await boardName.fill('b'.repeat(80));
+  await expect(boardName).toHaveAccessibleDescription('80 / 80 characters: limit reached.');
+  const displayName = page.getByLabel('Display name');
+  await displayName.fill('d'.repeat(48));
+  await expect(displayName).toHaveAccessibleDescription('48 / 60 characters');
+});
+
+test('a create saved just before a reload is kept', async ({ page }) => {
+  await demoLogin(page);
+  page.on('dialog', (d) => void d.accept()); // the "leave site?" prompt while saving
+  await page.getByRole('button', { name: 'Add a card to To Do' }).click();
+  await page.getByLabel('Title').fill('Saved right before reload');
+  await page.getByRole('button', { name: 'Create task' }).click();
+  await page.waitForTimeout(30);
+  await page.reload();
+  await expect(cardByTitle(page, 'Saved right before reload')).toBeVisible();
+});
+
+test('resetting demo data as a newly registered user explains why you were signed out', async ({
+  page,
+}) => {
+  await page.goto('#/signup');
+  await page.getByLabel('Name').fill('New Person');
+  await page.getByLabel('Email').fill(`new-${Date.now()}@example.com`);
+  await page.getByLabel('Password').fill('password123');
+  await page.getByRole('button', { name: 'Create account' }).click();
+  await expect(page.getByTestId('task-card').first()).toBeVisible();
+  await page.getByRole('link', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Reset demo data' }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Reset demo data' }).click();
+  await expect(page).toHaveURL(/#\/login/);
+  await expect(page.getByRole('status').filter({ hasText: 'Demo data restored' })).toContainText(
+    'the reset removed it',
+  );
+  await expect(page.getByText('Your session has ended')).toHaveCount(0);
+});

@@ -64,6 +64,8 @@ export interface UpdateTaskInput {
   description?: string;
   status?: TaskStatus;
   assigneeId?: string | null;
+  /** The task's `updatedAt` when the editor opened it; a mismatch returns 409. */
+  expectedUpdatedAt?: string;
 }
 
 export interface MoveTaskInput {

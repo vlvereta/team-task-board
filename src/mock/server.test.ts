@@ -250,7 +250,7 @@ describe('server behaviour', () => {
     expect((await p).status).toBe(404);
   });
 
-  it('applies latency before shouldFail responses too', async () => {
+  it('applies latency to shouldFail responses too', async () => {
     vi.useFakeTimers();
     const server = createMockServer({
       storage: memoryStorage(),
@@ -266,5 +266,34 @@ describe('server behaviour', () => {
     expect(done).toBe(false);
     await vi.advanceTimersByTimeAsync(1);
     expect((await p).status).toBe(500);
+  });
+
+  it('stores a write before the delayed response arrives (a reload mid-request keeps it)', async () => {
+    const storage = memoryStorage();
+    const fast = createMockServer({ storage, latency: [0, 0], pbkdf2Iterations: 1000 });
+    const { token } = await login(fast);
+    // Real timers: token checks use real async crypto.
+    const slow = createMockServer({ storage, latency: [400, 400], pbkdf2Iterations: 1000 });
+    const started = Date.now();
+    const pending = call(slow, 'POST', '/tasks', { token, body: { title: 'Saved early' } });
+    await vi.waitFor(() => expect(storage.getItem(STORAGE_KEY)).toContain('Saved early'), {
+      timeout: 300,
+      interval: 5,
+    });
+    expect(Date.now() - started).toBeLessThan(350);
+    expect((await pending).status).toBe(201);
+  });
+
+  it('processes concurrent writes one at a time (no lost updates)', async () => {
+    const { server } = makeServer({ latency: [0, 0] });
+    const { token } = await login(server);
+    const results = await Promise.all(
+      Array.from({ length: 5 }, (_, i) =>
+        call(server, 'POST', '/tasks', { token, body: { title: `Parallel ${i}` } }),
+      ),
+    );
+    expect(results.map((r) => r.status)).toEqual([201, 201, 201, 201, 201]);
+    const tasks = await getTasks(server, token);
+    expect(tasks.filter((t) => t.title.startsWith('Parallel'))).toHaveLength(5);
   });
 });

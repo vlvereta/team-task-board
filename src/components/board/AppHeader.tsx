@@ -67,7 +67,7 @@ export function AppHeader() {
           )}
           <button
             type="button"
-            onClick={logout}
+            onClick={() => logout()}
             className="focus-ring-light inline-flex min-h-touch min-w-touch items-center justify-center gap-2 rounded-lg px-2 text-sm font-semibold hover:bg-white/15 sm:px-3"
           >
             <svg

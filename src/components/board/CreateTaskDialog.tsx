@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useBlocker } from 'react-router';
 import type { FormEvent } from 'react';
 import { errorMessage, isApiError } from '../../api/errors';
 import type { TaskStatus } from '../../api/types';
@@ -52,6 +53,7 @@ export function CreateTaskDialog({ status, defaultAssigneeId, onClose }: Props) 
         status: draft.status,
         assigneeId: draft.assigneeId || null,
       });
+      created.current = true;
       toast.show(`Added to ${COLUMN_TITLES[draft.status]}.`, 'success');
       onClose();
     } catch (err) {
@@ -63,6 +65,10 @@ export function CreateTaskDialog({ status, defaultAssigneeId, onClose }: Props) 
 
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const dirty = draft.title.trim() !== '' || draft.description.trim() !== '';
+
+  // Leaving the page (e.g. browser Back) with a half-written task asks too.
+  const created = useRef(false);
+  const blocker = useBlocker(() => dirty && !created.current);
 
   /** Close, but ask first if something has been typed. */
   function requestClose() {
@@ -111,6 +117,9 @@ export function CreateTaskDialog({ status, defaultAssigneeId, onClose }: Props) 
       </Dialog>
       {confirmDiscard && (
         <DiscardChangesDialog onDiscard={onClose} onKeep={() => setConfirmDiscard(false)} />
+      )}
+      {blocker.state === 'blocked' && (
+        <DiscardChangesDialog onDiscard={() => blocker.proceed()} onKeep={() => blocker.reset()} />
       )}
     </>
   );

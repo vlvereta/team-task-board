@@ -146,6 +146,45 @@ describe('POST /tasks', () => {
   });
 });
 
+describe('PATCH /tasks/:id with expectedUpdatedAt (two editors)', () => {
+  it('accepts the edit when the version matches', async () => {
+    const { server, token } = await setup();
+    const target = (await getTasks(server, token))[0]!;
+    const res = await call(server, 'PATCH', `/tasks/${target.id}`, {
+      token,
+      body: { title: 'Mine', expectedUpdatedAt: target.updatedAt },
+    });
+    expect(res.status).toBe(200);
+  });
+
+  it('returns 409 when someone else saved first, and changes nothing', async () => {
+    let t = 1_700_000_000_000;
+    const { server } = makeServer({ now: () => t });
+    const { token } = await login(server);
+    const opened = (await getTasks(server, token))[0]!;
+    t += 1000;
+    await call(server, 'PATCH', `/tasks/${opened.id}`, { token, body: { title: 'First save' } });
+    const res = await call(server, 'PATCH', `/tasks/${opened.id}`, {
+      token,
+      body: { title: 'Second save', expectedUpdatedAt: opened.updatedAt },
+    });
+    expect(res.status).toBe(409);
+    expect(res.body.error.code).toBe('conflict');
+    const now = (await getTasks(server, token)).find((x) => x.id === opened.id)!;
+    expect(now.title).toBe('First save');
+  });
+
+  it('rejects a non-string expectedUpdatedAt with 400', async () => {
+    const { server, token } = await setup();
+    const target = (await getTasks(server, token))[0]!;
+    const res = await call(server, 'PATCH', `/tasks/${target.id}`, {
+      token,
+      body: { title: 'x', expectedUpdatedAt: 5 },
+    });
+    expect(res.status).toBe(400);
+  });
+});
+
 describe('PATCH /tasks/:id', () => {
   it('updates title, description and assignee, refreshing updatedAt', async () => {
     let t = 1_700_000_000_000;

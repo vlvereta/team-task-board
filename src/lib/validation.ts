@@ -25,3 +25,11 @@ export function validateTaskDraft(draft: { title: string }): Record<string, stri
   if (!draft.title.trim()) errors.title = 'Give the task a title.';
   return errors;
 }
+
+/** A character count shown once text gets close to its limit. */
+export function lengthHint(length: number, max: number): string | undefined {
+  if (length < max * 0.8) return undefined;
+  return length >= max
+    ? `${length} / ${max} characters: limit reached.`
+    : `${length} / ${max} characters`;
+}

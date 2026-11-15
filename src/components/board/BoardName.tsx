@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { errorMessage } from '../../api/errors';
 import { BOARD_NAME_MAX_LENGTH } from '../../api/types';
+import { lengthHint } from '../../lib/validation';
 import { useBoardData } from '../../app/BoardDataContext';
 import { useToast } from '../../app/ToastContext';
 
@@ -66,8 +67,16 @@ export function BoardName() {
               requestAnimationFrame(() => buttonRef.current?.focus());
             }
           }}
+          aria-describedby={
+            lengthHint(draft.length, BOARD_NAME_MAX_LENGTH) ? 'board-name-count' : undefined
+          }
           className="w-full min-h-touch max-w-md rounded-md bg-white px-2 text-lg font-bold text-slate-900 outline-3 outline-accent"
         />
+        {lengthHint(draft.length, BOARD_NAME_MAX_LENGTH) && (
+          <p id="board-name-count" className="mt-1 text-xs text-board-ink">
+            {lengthHint(draft.length, BOARD_NAME_MAX_LENGTH)}
+          </p>
+        )}
       </form>
     );
   }

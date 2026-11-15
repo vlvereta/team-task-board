@@ -1,4 +1,4 @@
-import { HashRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router';
+import { Navigate, Outlet, RouterProvider, createHashRouter, useLocation } from 'react-router';
 import { BoardPage } from '../pages/BoardPage';
 import { LoginPage } from '../pages/LoginPage';
 import { SettingsPage } from '../pages/SettingsPage';
@@ -53,26 +53,36 @@ function PublicOnly() {
   return <Outlet />;
 }
 
+// A data router (rather than <HashRouter>) so dialogs can block navigation
+// while they hold unsaved changes (useBlocker).
+const router = createHashRouter([
+  {
+    element: <PublicOnly />,
+    children: [
+      { path: '/login', element: <LoginPage /> },
+      { path: '/signup', element: <SignupPage /> },
+    ],
+  },
+  {
+    element: <RequireAuth />,
+    children: [
+      {
+        path: '/board',
+        element: <BoardPage />,
+        children: [{ path: 'tasks/:taskId', element: <TaskRoute /> }],
+      },
+      { path: '/settings', element: <SettingsPage /> },
+    ],
+  },
+  { path: '*', element: <Navigate to="/board" replace /> },
+]);
+
 export function App() {
   return (
-    <HashRouter>
-      <ToastProvider>
-        <AuthProvider>
-          <Routes>
-            <Route element={<PublicOnly />}>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-            </Route>
-            <Route element={<RequireAuth />}>
-              <Route path="/board" element={<BoardPage />}>
-                <Route path="tasks/:taskId" element={<TaskRoute />} />
-              </Route>
-              <Route path="/settings" element={<SettingsPage />} />
-            </Route>
-            <Route path="*" element={<Navigate to="/board" replace />} />
-          </Routes>
-        </AuthProvider>
-      </ToastProvider>
-    </HashRouter>
+    <ToastProvider>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </ToastProvider>
   );
 }

@@ -26,15 +26,15 @@ Every non-2xx response has this body:
 }
 ```
 
-| Status | `code`                | When                                                                                                          |
-| ------ | --------------------- | ------------------------------------------------------------------------------------------------------------- |
-| 400    | `validation_error`    | Body missing or not an object, a field fails validation (`fields` lists them), bad query value.               |
-| 401    | `unauthorized`        | Missing, malformed, badly signed or expired token, or the token's user no longer exists.                      |
-| 401    | `invalid_credentials` | Login with an unknown email or a wrong password. One generic message for both: "Incorrect email or password." |
-| 403    | `forbidden`           | Authenticated, but the action targets someone else's account (`PATCH /users/:id` with another user's id).     |
-| 404    | `not_found`           | Unknown task id, or no route matches the method and path.                                                     |
-| 409    | `conflict`            | Registering an email that already exists. Message: "An account with this email already exists."               |
-| 500    | `internal_error`      | Unexpected failure (also used by the mock's failure injection).                                               |
+| Status | `code`                | When                                                                                                                                                                                                           |
+| ------ | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 400    | `validation_error`    | Body missing or not an object, a field fails validation (`fields` lists them), bad query value.                                                                                                                |
+| 401    | `unauthorized`        | Missing, malformed, badly signed or expired token, or the token's user no longer exists.                                                                                                                       |
+| 401    | `invalid_credentials` | Login with an unknown email or a wrong password. One generic message for both: "Incorrect email or password."                                                                                                  |
+| 403    | `forbidden`           | Authenticated, but the action targets someone else's account (`PATCH /users/:id` with another user's id).                                                                                                      |
+| 404    | `not_found`           | Unknown task id, or no route matches the method and path.                                                                                                                                                      |
+| 409    | `conflict`            | Registering an email that already exists ("An account with this email already exists."), or editing a task with an outdated `expectedUpdatedAt` ("This task was changed somewhere else after you opened it."). |
+| 500    | `internal_error`      | Unexpected failure (also used by the mock's failure injection).                                                                                                                                                |
 
 ## Validation rules
 
@@ -106,7 +106,8 @@ Body: `CreateTaskInput` `{ title, description?, status?, assigneeId? }`. `status
 #### `PATCH /tasks/:id`
 
 Body: `UpdateTaskInput`, any subset of `{ title, description, status, assigneeId }`. Unknown keys are ignored; `position` cannot be set here. If `status` changes, the task moves to the end of the new column. `updatedAt` is refreshed.
-`200` → `{ task }`. Errors: 400, 404.
+Optional `expectedUpdatedAt`: the task's `updatedAt` when the editor opened it. If the task has been saved since, the server returns 409 and changes nothing, so two editors cannot silently overwrite each other.
+`200` → `{ task }`. Errors: 400, 404, 409.
 
 #### `PATCH /tasks/:id/move`
 
@@ -129,7 +130,7 @@ Restores the seed: the five demo users, the demo board and its tasks. Accounts c
 - **Storage**: one `localStorage` key, `crewboard:db`, holding `{ schemaVersion: 1, secret, users, board, tasks }`. If the key is missing, the seed is written (first visit only). If it cannot be parsed or has another `schemaVersion`, it is replaced by the seed. The store is re-read on every request, so two open tabs see each other's changes after a refetch.
 - **Passwords**: PBKDF2-SHA-256 with a random 16-byte salt per user (Web Crypto), stored as base64 `passwordHash` + `salt`. Never stored in plain text and never returned.
 - **Tokens**: JWT-shaped `base64url(header).base64url(payload).base64url(HMAC-SHA-256 signature)`, payload `{ sub, iat, exp }`, signed with a per-browser random secret kept in the store. Lifetime 12 hours.
-- **Latency**: each response is delayed by a random 150–400 ms (configurable: `VITE_MOCK_LATENCY="min,max"`, `0` in unit tests).
+- **Processing and latency**: requests are processed one at a time in arrival order, and each write is stored immediately; the response is then delayed by a random 150–400 ms (configurable: `VITE_MOCK_LATENCY="min,max"`, `0` in unit tests). As with a real server, a request that has been sent is kept even if the page reloads before the response arrives.
 - **Failure injection**: when the page URL has `?failMoves=1`, every `PATCH /tasks/:id/move` returns 500. Used to demonstrate and test the optimistic-update rollback.
 
 ## Seed

@@ -1,7 +1,7 @@
 import { TASK_STATUSES, type Task, type TaskStatus } from '../../api/types';
 import type { Db } from '../db';
 import { ok, type Handler } from '../context';
-import { notFound, validationError } from '../errors';
+import { HttpError, notFound, validationError } from '../errors';
 import {
   checkAssignee,
   checkDescription,
@@ -93,6 +93,19 @@ export const createTask: Handler = (ctx) => {
 export const patchTask: Handler = (ctx) => {
   const task = findTask(ctx.db, ctx.params['id']);
   const body = requireObject(ctx.body);
+  // Optimistic concurrency: the client says which version it edited.
+  const expected = body['expectedUpdatedAt'];
+  if (expected !== undefined) {
+    if (typeof expected !== 'string') {
+      throwIfAny({ expectedUpdatedAt: 'Must be the updatedAt value you last read.' });
+    } else if (expected !== task.updatedAt) {
+      throw new HttpError(
+        409,
+        'conflict',
+        'This task was changed somewhere else after you opened it.',
+      );
+    }
+  }
   const fields: Record<string, string> = {};
   const userExists = (id: string) => ctx.db.users.some((u) => u.id === id);
   const changes: Partial<Pick<Task, 'title' | 'description' | 'status' | 'assigneeId'>> = {};

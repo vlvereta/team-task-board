@@ -141,3 +141,15 @@ Verification of round 1: D3, D4, D5, D6, D7, D8, D9, D12, D13 confirmed fixed; D
 | N6 | nice-to-have | Demo emails broke mid-word at 320 px. | Fixed: email on its own line; it only breaks if it cannot fit. |
 | N7 | nice-to-have (taste) | Two-row header at 1440 px + 200%; card list clips at the column foot without a scroll hint. | **Left for the owner.** |
 | N8 | nice-to-have | Dragging on a phone did not auto-scroll to the next column. | Fixed: scroll snapping is switched off while a drag is in progress so auto-scroll can move the strip. Real-device check is in the owner checklist. |
+
+## Round 2: functional re-review (live site)
+
+Acceptance: **34 PASS, 0 FAIL, 0 PARTIAL**; `npm run lint`, `npm run typecheck`, `npm run build` exit 0. No console errors, warnings or page errors. Five new functional issues, all fixed with regression tests in `e2e/review-regressions.spec.ts` (and unit tests where the mock server changed):
+
+| # | Severity | Issue | Fix |
+|---|---|---|---|
+| F5 | minor | Browser Back closed the task dialog and discarded unsaved edits without asking (X, Esc, backdrop and Cancel did ask). | Switched to React Router's data router (`createHashRouter`) and `useBlocker`: every way of leaving the dialog with unsaved edits, Back included, asks first. The create dialog also blocks navigation while something is typed. |
+| F6 | minor | Two tabs editing the same task: the second save silently overwrote the first. | Optimistic concurrency: the dialog sends the `updatedAt` it opened with; the server returns 409 if the task changed since, the board refreshes to the other version and the dialog explains the choice (save again to overwrite, or cancel). Documented in `docs/API.md`; unit tests in `src/mock/tasks.test.ts`. |
+| F7 | trivial | Display name, board name (settings and inline) and sign-up name had no length counter. | Shared `lengthHint` counter on every limited text field. |
+| F8 | trivial | Reloading within ~30 ms of a save, or straight after rapid drags, lost the change (the mock applied writes only after its simulated latency). | The mock now stores a write as soon as it is processed and delays only the response, like a real server; requests are processed one at a time (unit tests for both). Queued, unsent moves are still covered by the "leave site?" warning. |
+| F9 | trivial | After "Reset demo data" as a newly registered user, the login page said "Your session has ended". | The login page now explains that the reset removed the account and suggests a demo account; no misleading success toast. |

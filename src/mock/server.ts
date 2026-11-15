@@ -60,14 +60,6 @@ export function createMockServer(options: MockServerOptions = {}): Transport {
   const store = createStore(storage, now, iterations);
 
   async function handle(req: ApiRequest): Promise<ApiResponse> {
-    if (maxLatency > 0) {
-      const delay = minLatency + Math.random() * (maxLatency - minLatency);
-      if (delay > 0) await sleep(delay);
-    }
-    if (options.shouldFail?.(req)) {
-      return errorResponse(new HttpError(500, 'internal_error', 'Simulated server failure.'));
-    }
-
     const { pathname, query } = parsePath(req.path);
     const match = matchRoute(routes, req.method, pathname);
     if (!match) return errorResponse(notFound('No such endpoint.'));
@@ -101,14 +93,34 @@ export function createMockServer(options: MockServerOptions = {}): Transport {
       : structuredClone(ok(res.body, res.status));
   }
 
+  async function process(req: ApiRequest): Promise<ApiResponse> {
+    if (options.shouldFail?.(req)) {
+      return errorResponse(new HttpError(500, 'internal_error', 'Simulated server failure.'));
+    }
+    try {
+      return await handle(req);
+    } catch (err) {
+      if (err instanceof HttpError) return errorResponse(err);
+      return internalError();
+    }
+  }
+
+  // Requests are processed one at a time (each one reads, changes and saves
+  // the whole store) and then the response is delayed, like a real server:
+  // a request that was sent is stored even if the page reloads before the
+  // response arrives.
+  let lock: Promise<unknown> = Promise.resolve();
+
   return {
     async send(req) {
-      try {
-        return await handle(req);
-      } catch (err) {
-        if (err instanceof HttpError) return errorResponse(err);
-        return internalError();
+      const res = lock.then(() => process(req));
+      lock = res.catch(() => undefined);
+      const response = await res;
+      if (maxLatency > 0) {
+        const delay = minLatency + Math.random() * (maxLatency - minLatency);
+        if (delay > 0) await sleep(delay);
       }
+      return response;
     },
   };
 }

@@ -10,6 +10,7 @@ import { Button } from '../components/ui/Button';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { TextField } from '../components/ui/Field';
 import { Spinner } from '../components/ui/Spinner';
+import { lengthHint } from '../lib/validation';
 
 function Section({
   title,
@@ -86,6 +87,7 @@ function NameForm({
             setError(undefined);
           }}
           error={error}
+          hint={lengthHint(value.length, maxLength)}
         />
       </div>
       <Button type="submit" busy={busy} disabled={!dirty} className="sm:mt-7">
@@ -107,9 +109,10 @@ export function SettingsPage() {
     setResetting(true);
     setResetError(null);
     try {
-      await resetDemo();
-      setConfirmReset(false);
-      toast.show('Demo data restored.', 'success');
+      if (await resetDemo()) {
+        setConfirmReset(false);
+        toast.show('Demo data restored.', 'success');
+      }
     } catch (err) {
       setResetError(errorMessage(err));
     } finally {

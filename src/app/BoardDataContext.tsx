@@ -30,13 +30,14 @@ interface BoardDataValue {
   moveTask: (id: string, status: TaskStatus, position: number) => void;
   renameBoard: (name: string) => Promise<void>;
   updateMyName: (name: string) => Promise<void>;
-  resetDemo: () => Promise<void>;
+  /** Resolves to false when the reset removed the signed-in account. */
+  resetDemo: () => Promise<boolean>;
 }
 
 const BoardDataContext = createContext<BoardDataValue | null>(null);
 
 export function BoardDataProvider({ children }: { children: ReactNode }) {
-  const { setUser, refresh: refreshSession } = useAuth();
+  const { setUser, logout } = useAuth();
   const toast = useToast();
   const [status, setStatus] = useState<LoadStatus>('loading');
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -149,6 +150,8 @@ export function BoardDataProvider({ children }: { children: ReactNode }) {
           removeLocally(id);
           void load('silent');
         }
+        // Someone else saved first: show their version.
+        if (isApiError(e) && e.status === 409) void load('silent');
         throw e;
       }),
     [enqueue, load, removeLocally, setTasks],
@@ -215,9 +218,20 @@ export function BoardDataProvider({ children }: { children: ReactNode }) {
   const resetDemo = useCallback(async () => {
     await enqueue(() => api.demo.reset());
     // The reset removes accounts created since the seed; re-check ours.
-    await refreshSession();
+    try {
+      setUser(await api.auth.me());
+    } catch (e) {
+      if (isApiError(e) && e.status === 401) {
+        logout(
+          'Demo data restored. The account you were using was created after the demo started, so the reset removed it. Sign in with one of the demo accounts.',
+        );
+        return false;
+      }
+      throw e;
+    }
     await load('silent');
-  }, [enqueue, load, refreshSession]);
+    return true;
+  }, [enqueue, load, logout, setUser]);
 
   const value = useMemo<BoardDataValue>(
     () => ({

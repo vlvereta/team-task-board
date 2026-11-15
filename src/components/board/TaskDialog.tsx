@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useBlocker } from 'react-router';
 import type { FormEvent } from 'react';
 import { errorMessage, isApiError } from '../../api/errors';
 import type { Task } from '../../api/types';
@@ -38,7 +39,6 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -49,11 +49,19 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
     draft.assigneeId !== original.assigneeId ||
     draft.status !== original.status;
 
-  /** Close, but ask first if there are unsaved edits. */
+  // Any way of leaving (X, Esc, backdrop, Cancel, browser Back) is a route
+  // change; block it while there are unsaved edits and ask first.
+  const allowLeave = useRef(false);
+  const blocker = useBlocker(() => dirty && !allowLeave.current);
+
   function requestClose() {
-    if (busy || confirming || confirmDiscard) return;
-    if (dirty) setConfirmDiscard(true);
-    else onClose();
+    if (busy || confirming || blocker.state === 'blocked') return;
+    onClose();
+  }
+
+  function leave() {
+    allowLeave.current = true;
+    onClose();
   }
 
   const creator = users.find((u) => u.id === task.createdBy);
@@ -79,11 +87,16 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
         description: draft.description,
         assigneeId: draft.assigneeId || null,
         status: draft.status,
+        expectedUpdatedAt: task.updatedAt,
       });
       toast.show('Changes saved.', 'success');
-      onClose();
+      leave();
     } catch (err) {
-      if (isApiError(err) && Object.keys(err.fields).length) setErrors(err.fields);
+      if (isApiError(err) && err.status === 409) {
+        setFormError(
+          'Someone else changed this task after you opened it. The board now shows their version. Save again to replace it with yours, or cancel to keep theirs.',
+        );
+      } else if (isApiError(err) && Object.keys(err.fields).length) setErrors(err.fields);
       else setFormError(errorMessage(err));
       setBusy(false);
     }
@@ -96,7 +109,7 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
     try {
       await deleteTask(task.id);
       toast.show(`Deleted "${task.title}".`, 'success');
-      onClose();
+      leave();
     } catch (err) {
       setDeleteError(errorMessage(err));
       setDeleting(false);
@@ -157,8 +170,8 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
           </div>
         </form>
       </Dialog>
-      {confirmDiscard && (
-        <DiscardChangesDialog onDiscard={onClose} onKeep={() => setConfirmDiscard(false)} />
+      {blocker.state === 'blocked' && (
+        <DiscardChangesDialog onDiscard={() => blocker.proceed()} onKeep={() => blocker.reset()} />
       )}
       {confirming && (
         <ConfirmDialog

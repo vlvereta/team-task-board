@@ -14,7 +14,8 @@ interface AuthContextValue {
   clearNotice: () => void;
   login: (input: LoginInput) => Promise<void>;
   register: (input: RegisterInput) => Promise<void>;
-  logout: () => void;
+  /** Sign out, optionally leaving a message for the login page. */
+  logout: (notice?: string) => void;
   setUser: (user: User) => void;
   /** Re-validates the session (used after demo reset, which may remove the account). */
   refresh: () => Promise<void>;
@@ -96,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearNotice: () => setNotice(null),
       login,
       register,
-      logout: () => signOut(null),
+      logout: (message?: string) => signOut(message ?? null),
       setUser: setUserState,
       refresh,
     }),
