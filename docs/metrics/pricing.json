@@ -1,0 +1,17 @@
+{
+  "source_url": "https://platform.claude.com/docs/en/about-claude/pricing",
+  "retrieved": "2026-11-15",
+  "currency": "USD",
+  "unit": "per million tokens",
+  "notes": [
+    "Standard (global) routing; the session logs record inference_geo \"global\", so the 1.1x US-only multiplier does not apply.",
+    "Opus 5.5 and Sonnet 5.5 have no long-context surcharge. Haiku 5.5 rates are the 'prompts up to 100,000 tokens' tier.",
+    "cache_write_5m and cache_write_1h are the two prompt-cache write rates; Claude Code logs which one each write used."
+  ],
+  "models": {
+    "claude-opus-5-5": { "input": 4, "cache_write_5m": 5, "cache_write_1h": 8, "cache_read": 0.2, "output": 20 },
+    "claude-sonnet-5-5": { "input": 2, "cache_write_5m": 2.5, "cache_write_1h": 4, "cache_read": 0.1, "output": 10 },
+    "claude-haiku-5-5": { "input": 0.1, "cache_write_5m": 0.125, "cache_write_1h": 0.2, "cache_read": 0.01, "output": 0.5 },
+    "claude-fable-5-2": { "input": 8, "cache_write_5m": 10, "cache_write_1h": 16, "cache_read": 0.2, "output": 40 }
+  }
+}

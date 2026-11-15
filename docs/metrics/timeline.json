@@ -2,6 +2,7 @@
   "iterations": [
     {
       "label": "iteration-1",
+      "first_prompt_at": "2026-11-15T11:26:55Z",
       "started_at": "2026-11-15T11:27:01Z",
       "deployed_at": null,
       "ready_at": null,
@@ -41,6 +42,13 @@
           "purpose": "Mock server (router, store, seed, crypto, handlers) with unit tests against docs/API.md",
           "start": "2026-11-15T11:32:29Z",
           "end": "2026-11-15T11:36:49Z"
+        },
+        {
+          "id": "e2e-suite",
+          "model": "sonnet",
+          "purpose": "Playwright suite: functional flows, layout checks, screenshots",
+          "start": "2026-11-15T11:41:57Z",
+          "end": null
         }
       ]
     }
