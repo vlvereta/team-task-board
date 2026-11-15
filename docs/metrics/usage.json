@@ -50,9 +50,7 @@
     }
   },
   "running_total": {
-    "iterations": [
-      "iteration-1"
-    ],
+    "iterations": ["iteration-1"],
     "messages": 71,
     "input_tokens": 142,
     "output_tokens": 141085,

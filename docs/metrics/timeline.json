@@ -97,6 +97,24 @@
           "phase": "4b-review",
           "event": "start",
           "note": "round 3"
+        },
+        {
+          "at": "2026-11-15T13:44:37Z",
+          "phase": "4b-review",
+          "event": "note",
+          "note": "round 3 fixes pushed (M1-M4, R1-R5, session-check retry)"
+        },
+        {
+          "at": "2026-11-15T13:47:13Z",
+          "phase": "4b-review",
+          "event": "start",
+          "note": "round 4 (functional only; design capped at 3)"
+        },
+        {
+          "at": "2026-11-15T13:48:13Z",
+          "phase": "4b-review",
+          "event": "note",
+          "note": "round 4 functional review stopped unfinished: usage limit reached"
         }
       ],
       "delegations": [
@@ -162,6 +180,13 @@
           "purpose": "Round 3 (final) design review",
           "start": "2026-11-15T13:01:04Z",
           "end": "2026-11-15T13:20:02Z"
+        },
+        {
+          "id": "functional-r4",
+          "model": "sonnet",
+          "purpose": "Round 4 full functional review of the live site",
+          "start": "2026-11-15T13:47:14Z",
+          "end": "2026-11-15T13:48:13Z"
         }
       ]
     }

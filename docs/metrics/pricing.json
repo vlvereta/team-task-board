@@ -9,9 +9,33 @@
     "cache_write_5m and cache_write_1h are the two prompt-cache write rates; Claude Code logs which one each write used."
   ],
   "models": {
-    "claude-opus-5-5": { "input": 4, "cache_write_5m": 5, "cache_write_1h": 8, "cache_read": 0.2, "output": 20 },
-    "claude-sonnet-5-5": { "input": 2, "cache_write_5m": 2.5, "cache_write_1h": 4, "cache_read": 0.1, "output": 10 },
-    "claude-haiku-5-5": { "input": 0.1, "cache_write_5m": 0.125, "cache_write_1h": 0.2, "cache_read": 0.01, "output": 0.5 },
-    "claude-fable-5-2": { "input": 8, "cache_write_5m": 10, "cache_write_1h": 16, "cache_read": 0.2, "output": 40 }
+    "claude-opus-5-5": {
+      "input": 4,
+      "cache_write_5m": 5,
+      "cache_write_1h": 8,
+      "cache_read": 0.2,
+      "output": 20
+    },
+    "claude-sonnet-5-5": {
+      "input": 2,
+      "cache_write_5m": 2.5,
+      "cache_write_1h": 4,
+      "cache_read": 0.1,
+      "output": 10
+    },
+    "claude-haiku-5-5": {
+      "input": 0.1,
+      "cache_write_5m": 0.125,
+      "cache_write_1h": 0.2,
+      "cache_read": 0.01,
+      "output": 0.5
+    },
+    "claude-fable-5-2": {
+      "input": 8,
+      "cache_write_5m": 10,
+      "cache_write_1h": 16,
+      "cache_read": 0.2,
+      "output": 40
+    }
   }
 }
