@@ -1,0 +1,40 @@
+{
+  "iterations": [
+    {
+      "label": "iteration-1",
+      "started_at": "2026-11-15T11:27:01Z",
+      "deployed_at": null,
+      "ready_at": null,
+      "events": [
+        {
+          "at": "2026-11-15T11:27:01Z",
+          "phase": "0-preflight",
+          "event": "start"
+        },
+        {
+          "at": "2026-11-15T11:28:52Z",
+          "phase": "0-preflight",
+          "event": "end",
+          "note": "node installed via Homebrew (v26.13.1); gh logged in as vlvereta; repo name free"
+        },
+        {
+          "at": "2026-11-15T11:28:53Z",
+          "phase": "1-plan",
+          "event": "start"
+        },
+        {
+          "at": "2026-11-15T11:29:28Z",
+          "phase": "1-plan",
+          "event": "end"
+        },
+        {
+          "at": "2026-11-15T11:29:28Z",
+          "phase": "2-build",
+          "event": "start",
+          "note": "scaffold"
+        }
+      ],
+      "delegations": []
+    }
+  ]
+}
