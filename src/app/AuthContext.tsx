@@ -1,10 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import { isApiError } from '../api/errors';
 import { tokenStore } from '../api/token';
 import type { LoginInput, RegisterInput, User } from '../api/types';
 import { api, onSessionExpired } from './composition';
 
-type AuthStatus = 'checking' | 'signedOut' | 'signedIn';
+/** `unreachable`: we hold a token but could not check it (not a 401). */
+type AuthStatus = 'checking' | 'signedOut' | 'signedIn' | 'unreachable';
 
 interface AuthContextValue {
   status: AuthStatus;
@@ -46,12 +48,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const me = await api.auth.me();
       setUserState(me);
       setStatus('signedIn');
-    } catch {
-      // A 401 already triggered the session-expired listener; any other error
-      // still leaves us without a verified session.
-      if (tokenStore.get()) signOut('We could not verify your session. Please sign in again.');
+    } catch (e) {
+      // A 401 already triggered the session-expired listener. Any other
+      // failure (server or network error) keeps the session so the user can
+      // retry instead of being signed out.
+      if (isApiError(e) && e.status === 401) return;
+      if (tokenStore.get()) setStatus('unreachable');
     }
-  }, [signOut]);
+  }, []);
 
   useEffect(() => {
     const off = onSessionExpired(() => signOut('Your session has ended. Please sign in again.'));

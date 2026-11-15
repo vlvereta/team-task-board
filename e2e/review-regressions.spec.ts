@@ -187,3 +187,27 @@ test('resetting demo data as a newly registered user explains why you were signe
   );
   await expect(page.getByText('Your session has ended')).toHaveCount(0);
 });
+
+// Found while capturing checklist screenshots: a server error (not a 401)
+// during the session check used to sign the user out.
+test('a server error during the session check keeps the session and offers a retry', async ({
+  page,
+}) => {
+  await demoLogin(page);
+  await page.addInitScript(() => {
+    if (sessionStorage.getItem('failed-once')) return;
+    const original = Storage.prototype.getItem;
+    Storage.prototype.getItem = function (key: string) {
+      if (key === 'crewboard:db' && !sessionStorage.getItem('failed-once')) {
+        sessionStorage.setItem('failed-once', '1');
+        throw new Error('Storage unavailable');
+      }
+      return original.call(this, key);
+    };
+  });
+  await page.reload();
+  await expect(page.getByRole('heading', { name: "We can't reach the server" })).toBeVisible();
+  await page.getByRole('button', { name: 'Try again' }).click();
+  await expect(page.getByTestId('task-card').first()).toBeVisible();
+  await expect(page).toHaveURL(/#\/board/);
+});

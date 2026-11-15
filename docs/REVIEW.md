@@ -171,3 +171,5 @@ Objective findings (round 3 is the last design round; everything objective was f
 | R5 | nice-to-have | Header and column strip gutters differed on phones (20 vs 12 px). | Fixed: same side padding. |
 
 Matters of taste and things the reviewer was unsure about are in `docs/UI-REVIEW-CHECKLIST.md` (marked **Needs your eye**).
+
+**Found while capturing the owner-checklist screenshots (functional, fixed):** a non-401 failure of the session check (server or network error) signed the user out and cleared their session. It now keeps the session and shows "We can't reach the server" with Try again and Log out. Regression test: `e2e/review-regressions.spec.ts` ("a server error during the session check keeps the session and offers a retry").

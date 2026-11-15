@@ -5,6 +5,8 @@ import { SettingsPage } from '../pages/SettingsPage';
 import { SignupPage } from '../pages/SignupPage';
 import { TaskRoute } from '../pages/TaskRoute';
 import { AppHeader } from '../components/board/AppHeader';
+import { useState } from 'react';
+import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
 import { AuthProvider, useAuth } from './AuthContext';
 import { BoardDataProvider } from './BoardDataContext';
@@ -22,11 +24,41 @@ function FullPageSpinner() {
   );
 }
 
+function SessionUnreachable() {
+  const { refresh, logout } = useAuth();
+  const [retrying, setRetrying] = useState(false);
+  return (
+    <div className="flex min-h-dvh items-center justify-center bg-board p-4">
+      <div role="alert" className="w-full max-w-md rounded-xl bg-white p-6 text-center shadow-lg">
+        <h1 className="text-lg font-semibold text-slate-900">We can't reach the server</h1>
+        <p className="mt-2 text-sm text-slate-700">
+          Your session is still here. Check your connection and try again.
+        </p>
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
+          <Button variant="secondary" onClick={() => logout()}>
+            Log out
+          </Button>
+          <Button
+            busy={retrying}
+            onClick={() => {
+              setRetrying(true);
+              void refresh().finally(() => setRetrying(false));
+            }}
+          >
+            Try again
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** Board routes: signed-out visitors go to the login page (and come back after). */
 function RequireAuth() {
   const { status } = useAuth();
   const location = useLocation();
   if (status === 'checking') return <FullPageSpinner />;
+  if (status === 'unreachable') return <SessionUnreachable />;
   if (status === 'signedOut') {
     const from = location.pathname + location.search;
     return <Navigate to="/login" replace state={{ from }} />;
