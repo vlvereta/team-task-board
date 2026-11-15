@@ -178,7 +178,7 @@ export function BoardColumns({
         Press Enter to open. Press Space to pick up and move with the arrow keys.
       </p>
       <div
-        className="flex min-h-0 flex-1 snap-x snap-mandatory items-start gap-3 overflow-x-auto overscroll-x-contain px-3 pt-3 pb-4 sm:snap-none sm:px-5"
+        className="relative flex min-h-0 flex-1 snap-x snap-mandatory items-start gap-3 overflow-x-auto overscroll-x-contain px-3 pt-3 pb-4 sm:snap-none sm:px-5"
         data-testid="column-strip"
       >
         {TASK_STATUSES.map((status) => (
