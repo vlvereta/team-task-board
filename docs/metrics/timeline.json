@@ -102,14 +102,14 @@
           "model": "sonnet",
           "purpose": "Round 1 functional review of the live site",
           "start": "2026-11-15T12:10:32Z",
-          "end": null
+          "end": "2026-11-15T12:27:56Z"
         },
         {
           "id": "design-r1",
           "model": "sonnet",
           "purpose": "Round 1 design and usability review from screenshots",
           "start": "2026-11-15T12:10:32Z",
-          "end": null
+          "end": "2026-11-15T12:27:56Z"
         }
       ]
     }

@@ -89,3 +89,40 @@
 | Not verified by the reviewer: real touch hardware, a genuinely expired token, the load-error "Try again" button. | Expiry is covered by unit tests (`src/mock/auth.test.ts`, injected clock) and the 401 → login path by the client. Touch hardware is listed in `docs/UI-REVIEW-CHECKLIST.md` for the owner. | — |
 
 The screen-reader message after a rolled-back move still says "Dropped …" first; the error toast (`role="alert"`) then announces that the move failed and the card is back. Left as is.
+
+## Round 1: live site (https://vlvereta.github.io/team-task-board/)
+
+Two fresh reviewers, neither of whom had seen the implementation: a functional reviewer (spec + live URL, real browser) and a design reviewer (screenshots of every screen and state at 320 / 768 / 1440 px and at 200% text).
+
+### Functional review
+
+Acceptance: **33 PASS, 0 FAIL, 1 not verifiable from the browser** ("production build has no TypeScript or lint errors"; covered by CI, which runs `npm run lint` and `npm run typecheck` on every push). No console errors, warnings or page errors in any run. Break-it session: fast repeated drags, reload mid-save, double submits on every form, back/forward, expired/forged/garbage tokens, cleared storage, corrupted store, two tabs, phone portrait and landscape, 200% text and 400% zoom all ended in a consistent state.
+
+| # | Severity | Issue | Fix | Regression test |
+|---|---|---|---|---|
+| F1 | minor | Editing a task that another tab deleted showed "Task not found." but the stale card stayed on the board until reload. | A 404 on update removes the task locally and resyncs; the dialog then shows "Task not found". Deleting an already-deleted task now simply succeeds. | `e2e/review-regressions.spec.ts` (two tabs) |
+| F2 | minor | Closing the task dialog (X, Esc, backdrop, Cancel) silently discarded unsaved edits. | Both the edit and the create dialog ask "Discard unsaved changes?" (Keep editing / Discard changes) when something was changed. | `e2e/review-regressions.spec.ts` (edit, create, and unchanged → no prompt) |
+| F3 | trivial | Title (200) and description (5000) limits truncated input with no message. | A character count appears near the limit and says when it is reached (linked to the field with `aria-describedby`). | `e2e/review-regressions.spec.ts` |
+| F4 | trivial | Edit dialog title box was two rows tall, so long titles looked clipped at 200% / 320 px. | The title field grows with its content (`field-sizing: content`, capped at 12rem, resizable elsewhere). | Covered by the layout screenshots |
+
+### Design review
+
+No blockers. Objective defects fixed; taste items listed for the owner in `docs/UI-REVIEW-CHECKLIST.md`.
+
+| # | Rating | Finding | Outcome |
+|---|---|---|---|
+| D1 | should-fix | On phones / at 200% the toast covered the dialog's Cancel/Save buttons. | Fixed: toasts sit at the top on small screens, bottom on larger ones; one at a time. |
+| D2 | should-fix | At 320 px + 200% text the header is ~405 px tall; at 320 px it is two rows. | Partly fixed in round 0 (page scrolls, denser header). At double text size every control is twice as tall, so the remaining height is inherent; **left for the owner** (a collapsed menu is a design choice). |
+| D3 | should-fix | Edit dialog title fixed at two rows. | Fixed (grows with content). |
+| D4 | should-fix | Card focus ring clipped at the top; teal vs amber rings inconsistent. | Clipping fixed (list padding). Ring colour kept deliberately: amber on the dark header, dark teal on light surfaces (both ≥ 3:1 against their background); **owner may overrule**. |
+| D5 | should-fix | "My tasks" banner was a loud 52 px yellow bar. | Fixed: quieter amber-100 strip with the same information and the clear button. |
+| D7 | should-fix | Toast text off-centre, no success icon, old toasts stacked. | Fixed: centred, success icon, a new message replaces older non-error ones. |
+| D10 | should-fix | Demo accounts below the fold on the login page; "Sign in" repeated six times; dangling period; emails truncated at 320 px. | Fixed: demo panel beside the form on wide screens and first on phones, arrow icons instead of repeated "Sign in", copy tidied, emails wrap. |
+| D6 | nice-to-have | Inactive "My tasks" looked selected (same fill as active nav). | Fixed: outlined when off, amber when on. |
+| D8 | nice-to-have | No target-column highlight while dragging. | Fixed: the column under the dragged card gets an amber ring. |
+| D9 | nice-to-have | Session check showed a bare spinner. | Fixed: "Loading Crewboard…" with `role="status"`. |
+| D12 | nice-to-have | Disabled Save buttons washed out (~2.6:1). | Fixed: solid slate disabled style. |
+| D13 | nice-to-have | Logo (vertical bars in a rounded square) conceptually close to a well-known mark. | Fixed: new mark, three horizontal cards in a circle. |
+| D11 | nice-to-have | ~37% empty teal to the right of the columns at 1440 px. | Taste; **left for the owner** (fixed-width columns are the Kanban convention the spec asks for). |
+| D14 | nice-to-have | Confirmations stack over the still-visible edit dialog. | Kept: the context of what is being deleted stays visible; **left for the owner**. |
+| D15 | nice-to-have | "Unassigned" text 4.76:1, a narrow AA pass. | No change needed (passes AA). |

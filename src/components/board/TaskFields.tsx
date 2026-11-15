@@ -49,6 +49,7 @@ export function TaskFields({
           }
         }}
         error={errors.title}
+        hint={counter(draft.title.length, TITLE_MAX_LENGTH)}
         disabled={disabled}
         className="max-h-48 resize-y font-medium [field-sizing:content]"
       />
@@ -59,6 +60,7 @@ export function TaskFields({
         value={draft.description}
         onChange={(e) => set('description', e.target.value)}
         error={errors.description}
+        hint={counter(draft.description.length, DESCRIPTION_MAX_LENGTH)}
         disabled={disabled}
         placeholder="Add more detail, links or acceptance notes…"
       />
@@ -94,4 +96,12 @@ export function TaskFields({
       </div>
     </div>
   );
+}
+
+/** Show a character count once the text gets close to the limit. */
+function counter(length: number, max: number) {
+  if (length < max * 0.8) return undefined;
+  return length >= max
+    ? `${length} / ${max} characters: limit reached.`
+    : `${length} / ${max} characters`;
 }

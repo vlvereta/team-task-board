@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 import type { ReactNode } from 'react';
-import { errorMessage } from '../api/errors';
+import { errorMessage, isApiError } from '../api/errors';
 import type { Board, CreateTaskInput, Task, TaskStatus, UpdateTaskInput, User } from '../api/types';
 import { applyMove, groupByStatus, sortTasks } from '../lib/ordering';
 import { useAuth } from './AuthContext';
@@ -122,6 +122,17 @@ export function BoardDataProvider({ children }: { children: ReactNode }) {
     [enqueue, setTasks],
   );
 
+  // A 404 means the task was deleted elsewhere (e.g. another tab): drop it
+  // locally and resync with the server.
+  const removeLocally = useCallback(
+    (id: string) =>
+      setTasks((prev) => {
+        const groups = groupByStatus(prev.filter((t) => t.id !== id));
+        return Object.values(groups).flatMap((col) => col.map((t, i) => ({ ...t, position: i })));
+      }),
+    [setTasks],
+  );
+
   const updateTask = useCallback(
     (id: string, input: UpdateTaskInput) =>
       enqueue(async () => {
@@ -133,21 +144,29 @@ export function BoardDataProvider({ children }: { children: ReactNode }) {
           return base.map((t) => (t.id === id ? { ...task, position: t.position } : t));
         });
         return task;
+      }).catch((e: unknown) => {
+        if (isApiError(e) && e.status === 404) {
+          removeLocally(id);
+          void load('silent');
+        }
+        throw e;
       }),
-    [enqueue, setTasks],
+    [enqueue, load, removeLocally, setTasks],
   );
 
   const deleteTask = useCallback(
     (id: string) =>
       enqueue(async () => {
-        await api.tasks.remove(id);
-        setTasks((prev) => {
-          const rest = prev.filter((t) => t.id !== id);
-          const groups = groupByStatus(rest);
-          return Object.values(groups).flatMap((col) => col.map((t, i) => ({ ...t, position: i })));
-        });
+        try {
+          await api.tasks.remove(id);
+        } catch (e) {
+          // Already deleted elsewhere: the user's intent is met.
+          if (!(isApiError(e) && e.status === 404)) throw e;
+          void Promise.resolve().then(() => load('silent'));
+        }
+        removeLocally(id);
       }),
-    [enqueue, setTasks],
+    [enqueue, load, removeLocally],
   );
 
   const moveTask = useCallback(

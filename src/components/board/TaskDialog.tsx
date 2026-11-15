@@ -9,6 +9,7 @@ import { Button } from '../ui/Button';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { Dialog } from '../ui/Dialog';
 import { validateTaskDraft } from '../../lib/validation';
+import { DiscardChangesDialog } from './DiscardChangesDialog';
 import { TaskFields } from './TaskFields';
 import type { TaskDraft } from './TaskFields';
 
@@ -37,6 +38,7 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -46,6 +48,13 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
     draft.description !== original.description ||
     draft.assigneeId !== original.assigneeId ||
     draft.status !== original.status;
+
+  /** Close, but ask first if there are unsaved edits. */
+  function requestClose() {
+    if (busy || confirming || confirmDiscard) return;
+    if (dirty) setConfirmDiscard(true);
+    else onClose();
+  }
 
   const creator = users.find((u) => u.id === task.createdBy);
 
@@ -96,12 +105,7 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
 
   return (
     <>
-      <Dialog
-        title="Edit task"
-        onClose={() => !busy && !confirming && onClose()}
-        showClose
-        closeLabel="Close task"
-      >
+      <Dialog title="Edit task" onClose={requestClose} showClose closeLabel="Close task">
         <form
           onSubmit={onSubmit}
           noValidate
@@ -143,7 +147,7 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
               Delete
             </Button>
             <div className="ml-auto flex flex-wrap gap-2">
-              <Button variant="secondary" onClick={onClose} disabled={busy}>
+              <Button variant="secondary" onClick={requestClose} disabled={busy}>
                 Cancel
               </Button>
               <Button type="submit" busy={busy} disabled={!dirty}>
@@ -153,6 +157,9 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
           </div>
         </form>
       </Dialog>
+      {confirmDiscard && (
+        <DiscardChangesDialog onDiscard={onClose} onKeep={() => setConfirmDiscard(false)} />
+      )}
       {confirming && (
         <ConfirmDialog
           title="Delete this task?"

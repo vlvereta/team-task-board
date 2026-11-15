@@ -9,6 +9,7 @@ import { Button } from '../ui/Button';
 import { Dialog } from '../ui/Dialog';
 import { COLUMN_TITLES } from './columns';
 import { validateTaskDraft } from '../../lib/validation';
+import { DiscardChangesDialog } from './DiscardChangesDialog';
 import { TaskFields } from './TaskFields';
 import type { TaskDraft } from './TaskFields';
 
@@ -60,42 +61,57 @@ export function CreateTaskDialog({ status, defaultAssigneeId, onClose }: Props) 
     }
   }
 
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+  const dirty = draft.title.trim() !== '' || draft.description.trim() !== '';
+
+  /** Close, but ask first if something has been typed. */
+  function requestClose() {
+    if (busy || confirmDiscard) return;
+    if (dirty) setConfirmDiscard(true);
+    else onClose();
+  }
+
   return (
-    <Dialog
-      title={`New task in ${COLUMN_TITLES[draft.status]}`}
-      onClose={() => !busy && onClose()}
-      initialFocusRef={titleRef}
-      showClose
-    >
-      <form onSubmit={onSubmit} noValidate className="flex flex-1 flex-col">
-        <div className="px-5 pt-4 sm:px-6">
-          <TaskFields
-            draft={draft}
-            onChange={(d) => {
-              setDraft(d);
-              if (errors.title && d.title.trim()) setErrors(({ title: _t, ...rest }) => rest);
-            }}
-            users={users}
-            currentUserId={user?.id}
-            errors={errors}
-            titleRef={titleRef}
-            disabled={busy}
-          />
-          {formError && (
-            <p role="alert" className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
-              {formError}
-            </p>
-          )}
-        </div>
-        <div className="mt-auto flex flex-wrap justify-end gap-2 border-t border-slate-200 p-5 sm:mt-6 sm:px-6">
-          <Button variant="secondary" onClick={onClose} disabled={busy}>
-            Cancel
-          </Button>
-          <Button type="submit" busy={busy}>
-            Create task
-          </Button>
-        </div>
-      </form>
-    </Dialog>
+    <>
+      <Dialog
+        title={`New task in ${COLUMN_TITLES[draft.status]}`}
+        onClose={requestClose}
+        initialFocusRef={titleRef}
+        showClose
+      >
+        <form onSubmit={onSubmit} noValidate className="flex flex-1 flex-col">
+          <div className="px-5 pt-4 sm:px-6">
+            <TaskFields
+              draft={draft}
+              onChange={(d) => {
+                setDraft(d);
+                if (errors.title && d.title.trim()) setErrors(({ title: _t, ...rest }) => rest);
+              }}
+              users={users}
+              currentUserId={user?.id}
+              errors={errors}
+              titleRef={titleRef}
+              disabled={busy}
+            />
+            {formError && (
+              <p role="alert" className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
+                {formError}
+              </p>
+            )}
+          </div>
+          <div className="mt-auto flex flex-wrap justify-end gap-2 border-t border-slate-200 p-5 sm:mt-6 sm:px-6">
+            <Button variant="secondary" onClick={requestClose} disabled={busy}>
+              Cancel
+            </Button>
+            <Button type="submit" busy={busy}>
+              Create task
+            </Button>
+          </div>
+        </form>
+      </Dialog>
+      {confirmDiscard && (
+        <DiscardChangesDialog onDiscard={onClose} onKeep={() => setConfirmDiscard(false)} />
+      )}
+    </>
   );
 }
