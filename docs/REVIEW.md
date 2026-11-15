@@ -155,3 +155,19 @@ Acceptance: **34 PASS, 0 FAIL, 0 PARTIAL**; `npm run lint`, `npm run typecheck`,
 | F9 | trivial | After "Reset demo data" as a newly registered user, the login page said "Your session has ended". | The login page now explains that the reset removed the account and suggests a demo account; no misleading success toast. |
 
 **CI note (round 2):** the first deploy of these fixes failed in its CI job because a new regression test pressed Escape before the dialog had taken focus (the same commit passed in the standalone CI run). Besides making the test wait for the dialog, the app now handles Escape at document level for the topmost dialog, so an early Escape is never ignored. The suite then passed 156/156 across two repeats with 6 workers.
+
+## Round 3: final design review (live site)
+
+Verification of round 2: N1, N3, N4, N5, N6 pass; N8 passes with a mouse (real touch device is an owner check); N2 partly (see R1); N7 left for the owner. No regression in D1–D13. No console errors.
+
+Objective findings (round 3 is the last design round; everything objective was fixed):
+
+| # | Rating | Finding | Outcome |
+|---|---|---|---|
+| R1 | should-fix | Toast text squeezed to ~70 px and broke mid-word at 320 px + 200%. | Fixed: tighter toast padding and gaps on narrow screens; success icon hidden below 30rem. |
+| R2 | nice-to-have | Settings Save buttons 2 px lower than their inputs. | Fixed: offset now equals label height + gap (1.625rem). |
+| R3 | nice-to-have | "Show all tasks" and "Back to board" text indented relative to surrounding text (touch padding). | Fixed: negative margins so the text aligns while the touch target stays 44 px. |
+| R4 | nice-to-have | Loading pill closer than the 16 px gutter to the screen edge at 320 px + 200%, and not centred at 1440 px. | Fixed: inset by the gutter and placed a third of the way down. |
+| R5 | nice-to-have | Header and column strip gutters differed on phones (20 vs 12 px). | Fixed: same side padding. |
+
+Matters of taste and things the reviewer was unsure about are in `docs/UI-REVIEW-CHECKLIST.md` (marked **Needs your eye**).

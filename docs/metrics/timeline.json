@@ -91,6 +91,12 @@
           "phase": "4b-review",
           "event": "note",
           "note": "round 2 fixes pushed (F5-F9, N1-N8)"
+        },
+        {
+          "at": "2026-11-15T13:01:04Z",
+          "phase": "4b-review",
+          "event": "start",
+          "note": "round 3"
         }
       ],
       "delegations": [
@@ -142,6 +148,20 @@
           "purpose": "Round 2 design re-review of changed areas",
           "start": "2026-11-15T12:31:58Z",
           "end": "2026-11-15T12:40:04Z"
+        },
+        {
+          "id": "functional-r3",
+          "model": "sonnet",
+          "purpose": "Round 3 full functional review of the live site",
+          "start": "2026-11-15T13:01:04Z",
+          "end": null
+        },
+        {
+          "id": "design-r3",
+          "model": "sonnet",
+          "purpose": "Round 3 (final) design review",
+          "start": "2026-11-15T13:01:04Z",
+          "end": "2026-11-15T13:20:02Z"
         }
       ]
     }

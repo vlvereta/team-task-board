@@ -12,7 +12,7 @@ export function AppHeader() {
 
   return (
     <header className="shrink-0 border-b border-white/10 bg-board-deep text-white">
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-2 py-1.5 sm:gap-x-3 sm:px-5 sm:py-2">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 py-1.5 sm:gap-x-3 sm:px-5 sm:py-2">
         <Link
           to="/board"
           className="focus-ring-light flex min-h-touch min-w-touch shrink-0 items-center justify-center gap-2 rounded-md"

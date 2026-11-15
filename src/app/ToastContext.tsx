@@ -93,14 +93,14 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: number)
         : 'bg-slate-900 text-white';
   return (
     <div
-      className={`pointer-events-auto flex w-full max-w-md items-center gap-2 rounded-lg py-1 pr-1 pl-4 text-sm shadow-lg motion-safe:animate-[toast-in_160ms_ease-out] ${tone}`}
+      className={`pointer-events-auto flex w-full max-w-md items-center gap-1 rounded-lg py-1 pr-0.5 pl-3 text-sm sm:gap-2 sm:pr-1 sm:pl-4 shadow-lg motion-safe:animate-[toast-in_160ms_ease-out] ${tone}`}
       data-testid="toast"
     >
       {toast.tone === 'success' && (
         <svg
           aria-hidden="true"
           viewBox="0 0 20 20"
-          className="size-4 shrink-0 text-emerald-300"
+          className="hidden size-4 shrink-0 text-emerald-300 min-[30rem]:block"
           fill="currentColor"
         >
           <path

@@ -15,7 +15,7 @@ function BoardSkeleton() {
       className="relative flex min-h-0 flex-1 gap-3 overflow-hidden px-3 pt-3 sm:px-5"
       aria-busy="true"
     >
-      <div role="status" className="absolute inset-x-0 top-10 z-10 flex justify-center">
+      <div role="status" className="absolute inset-x-4 top-1/3 z-10 flex justify-center">
         <span className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-lg">
           <Spinner className="size-4 text-brand" />
           Loading board…
@@ -67,7 +67,7 @@ export function BoardPage() {
           <button
             type="button"
             onClick={() => setMine(false)}
-            className="focus-ring inline-flex min-h-touch items-center rounded-md px-2 font-semibold underline underline-offset-2 hover:bg-amber-200"
+            className="focus-ring -mx-2 inline-flex min-h-touch items-center rounded-md px-2 font-semibold underline underline-offset-2 hover:bg-amber-200"
           >
             Show all tasks
           </button>

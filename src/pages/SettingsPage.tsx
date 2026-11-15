@@ -90,7 +90,7 @@ function NameForm({
           hint={lengthHint(value.length, maxLength)}
         />
       </div>
-      <Button type="submit" busy={busy} disabled={!dirty} className="sm:mt-7">
+      <Button type="submit" busy={busy} disabled={!dirty} className="sm:mt-[1.625rem]">
         Save
       </Button>
     </form>
@@ -129,7 +129,7 @@ export function SettingsPage() {
           </h1>
           <Link
             to="/board"
-            className="focus-ring inline-flex min-h-touch items-center gap-1 rounded-lg px-3 text-sm font-semibold text-brand hover:bg-teal-50"
+            className="focus-ring -mx-3 inline-flex min-h-touch items-center gap-1 rounded-lg px-3 text-sm font-semibold text-brand hover:bg-teal-50"
           >
             <span aria-hidden="true">←</span> Back to board
           </Link>
