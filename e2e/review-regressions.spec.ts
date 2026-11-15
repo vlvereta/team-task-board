@@ -188,7 +188,7 @@ test('resetting demo data as a newly registered user explains why you were signe
   await expect(page.getByText('Your session has ended')).toHaveCount(0);
 });
 
-// Found while capturing checklist screenshots: a server error (not a 401)
+// Found while capturing review screenshots: a server error (not a 401)
 // during the session check used to sign the user out.
 test('a server error during the session check keeps the session and offers a retry', async ({
   page,

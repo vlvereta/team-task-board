@@ -38,7 +38,7 @@ test('live site: loads cleanly, demo login, create survives reload, deep link su
   await expect(page.getByRole('dialog', { name: 'Edit task' })).toBeVisible();
   await expect(page.getByLabel('Title')).toHaveValue(title);
 
-  // Clean up so the owner's own browser state isn't affected (fresh context anyway).
+  // Clean up so existing browser state isn't affected (fresh context anyway).
   await page.getByRole('button', { name: 'Delete' }).click();
   await page.getByRole('button', { name: 'Delete task' }).click();
   await expect(card).toHaveCount(0);

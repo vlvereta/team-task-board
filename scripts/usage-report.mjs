@@ -129,7 +129,10 @@ function cost(model, b) {
   };
   const round = (n) => Math.round(n * 10000) / 10000;
   const total = Object.values(parts).reduce((a, c) => a + c, 0);
-  return { ...Object.fromEntries(Object.entries(parts).map(([k, v]) => [k, round(v)])), total: round(total) };
+  return {
+    ...Object.fromEntries(Object.entries(parts).map(([k, v]) => [k, round(v)])),
+    total: round(total),
+  };
 }
 
 function summarise(start, end) {
@@ -148,7 +151,10 @@ function summarise(start, end) {
     else costComplete = false;
   }
   totals.all_tokens =
-    totals.input_tokens + totals.output_tokens + totals.cache_write_tokens + totals.cache_read_tokens;
+    totals.input_tokens +
+    totals.output_tokens +
+    totals.cache_write_tokens +
+    totals.cache_read_tokens;
   return {
     from: start.toISOString(),
     to: end.toISOString(),
@@ -187,7 +193,10 @@ for (const it of Object.values(out.iterations)) {
   runningCost += it.cost_usd ?? 0;
 }
 running.all_tokens =
-  running.input_tokens + running.output_tokens + running.cache_write_tokens + running.cache_read_tokens;
+  running.input_tokens +
+  running.output_tokens +
+  running.cache_write_tokens +
+  running.cache_read_tokens;
 out.running_total = {
   iterations: Object.keys(out.iterations),
   ...running,

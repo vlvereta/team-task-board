@@ -6,11 +6,11 @@ A minimal Kanban board for a small team: three columns, cards you can drag betwe
 
 ![Board](docs/screenshots/board.png)
 
-## The brief
+## What it is for
 
-A remote team of five wanted a minimal task board to find out whether a structured workflow helps them: sign in, see one shared board with To Do / In Progress / Done, create and assign tasks, drag them between columns, and filter to their own work. The original brief asked for React on the front end and a Node.js API.
+Crewboard is a minimal task board for a small remote team that wants to try a structured workflow without adopting a large tool: sign in, see one shared board with To Do / In Progress / Done, create and assign tasks, drag them between columns, and filter to your own work.
 
-This portfolio version keeps the full front end and the API contract, but replaces the server with an in-browser mock so the demo can be hosted for free on GitHub Pages. The UI talks to the API only through a transport interface, so pointing it at a real Express server is a one-line change (see below).
+It is a complete front end with a documented REST contract. The server behind that contract is an in-browser mock, so the demo can be hosted as a static site on GitHub Pages. The UI talks to the API only through a transport interface, so pointing it at a real Express server is a one-line change (see below).
 
 ## Demo accounts
 
@@ -86,7 +86,7 @@ import { createFetchTransport } from '../api/transport';
 const transport = createFetchTransport(import.meta.env.VITE_API_URL);
 ```
 
-Nothing in the UI changes. A real server (for example Express with MongoDB, as in the original brief) needs to implement the endpoints in [`docs/API.md`](docs/API.md), return the same JSON shapes and error format, and accept `Authorization: Bearer <token>`.
+Nothing in the UI changes. A real server (for example Express with MongoDB) needs to implement the endpoints in [`docs/API.md`](docs/API.md), return the same JSON shapes and error format, and accept `Authorization: Bearer <token>`.
 
 ### About the simulated authentication
 
@@ -128,19 +128,19 @@ The mock API's delay can be changed with `VITE_MOCK_LATENCY="min,max"` (millisec
 
 ## How this was built
 
-This project was built by an AI coding agent (Claude Code) from a written spec, under the owner's direction. The owner wrote the spec and the build instructions; the agent planned, implemented, tested, deployed, reviewed and measured the work in one session, using Claude Opus for planning, integration and review decisions and the cheaper Claude Sonnet for delegated, well-specified parts (the mock server and its tests, the Playwright suite, the independent reviews).
+This project was built by an AI coding agent (Claude Code) working from a written spec and build instructions, under human direction. The agent planned, implemented, tested, deployed, reviewed and measured the work in one session, using Claude Opus for planning, integration and review decisions and the cheaper Claude Sonnet for delegated, well-specified parts (the mock server and its tests, the Playwright suite, the independent reviews).
 
 <!-- BUILD-NUMBERS:START -->
 
-| Iteration 1         |                                                                                                                                                         |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Time                | 3 h 55 min active (5 h 48 min wall-clock, including a 1 h 53 min pause at a usage limit); live 28 minutes after the first prompt                        |
-| Tokens              | 112.7 million in total (0.86 million output; most of the rest is cache reads)                                                                           |
-| API-equivalent cost | US$39.07 at Anthropic list prices (Opus 5.5 $25.05, Sonnet 5.5 $14.02)                                                                                  |
-| Models              | Claude Opus 5.5 (main session), Claude Sonnet 5.5 (13 subagents: mock server, Playwright suite, independent reviews)                                    |
-| Reviews             | 6 completed independent functional review rounds (a 7th was stopped) and 3 design rounds; every functional issue found was fixed with a regression test |
+| Iteration 1         |                                                                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Time                | 3 h 55 min of active agent time; first live deployment 28 minutes after the first prompt                                                                            |
+| Tokens              | 112.7 million in total (0.86 million output; most of the rest is cache reads)                                                                                       |
+| API-equivalent cost | US$39.07 at Anthropic list prices (Opus 5.5 $25.05, Sonnet 5.5 $14.02)                                                                                              |
+| Models              | Claude Opus 5.5 (main session), Claude Sonnet 5.5 (13 subagents: mock server, Playwright suite, independent reviews)                                                |
+| Reviews             | 6 completed independent functional review rounds (a 7th was stopped) and 3 design rounds; every functional issue found was fixed, nearly all with a regression test |
 
-The final review round was stopped at the owner's request after round 5's fixes were deployed; see the report for what that means.
+The last review round was stopped before it finished, after round 5's fixes were deployed; the report explains what that means.
 <!-- BUILD-NUMBERS:END -->
 
 The full breakdown, method and caveats are in [`docs/BUILD-REPORT.md`](docs/BUILD-REPORT.md). Design and scope decisions are logged in [`docs/DECISIONS.md`](docs/DECISIONS.md).

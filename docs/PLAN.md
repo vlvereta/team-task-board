@@ -43,7 +43,7 @@ docs/           API.md, PLAN.md, DECISIONS.md, REVIEW.md, BUILD-REPORT.md, metri
 
 Error statuses: 400 validation, 401 missing/expired/bad token or wrong credentials, 403 editing another user's profile or a task-level action not allowed (e.g. `PATCH /users/:id` for someone else), 404 unknown task/route, 409 duplicate email.
 
-## Test plan (mapped to SPEC.md section 3)
+## Test plan (mapped to the spec's acceptance criteria)
 
 | Area     | Unit (Vitest)                                                                                                                | E2E (Playwright, preview build)                                                                                                                   |
 | -------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -65,4 +65,4 @@ Error statuses: 400 validation, 401 missing/expired/bad token or wrong credentia
 5. Drag and drop with optimistic update and rollback, keyboard support → commit.
 6. Polish pass; Playwright suite (delegated, Sonnet); independent acceptance review (fresh subagent).
 7. README, LICENSE, CI + deploy workflows, repo creation, Pages, live smoke test (`deployed_at`).
-8. Review-and-improve loop on the live site until ready (`ready_at`), UI checklist, measured report.
+8. Review-and-improve loop on the live site until ready, then the measured report.

@@ -16,7 +16,7 @@
           "at": "2026-11-15T11:28:52Z",
           "phase": "0-preflight",
           "event": "end",
-          "note": "node installed via Homebrew (v26.13.1); gh logged in as vlvereta; repo name free"
+          "note": "tooling checked; repository name free"
         },
         {
           "at": "2026-11-15T11:28:53Z",
@@ -114,13 +114,13 @@
           "at": "2026-11-15T13:48:13Z",
           "phase": "4b-review",
           "event": "note",
-          "note": "round 4 functional review stopped unfinished: usage limit reached"
+          "note": "round 4 functional review interrupted and stopped unfinished"
         },
         {
           "at": "2026-11-15T15:40:59Z",
           "phase": "4b-review",
           "event": "start",
-          "note": "round 4 resumed after usage-limit pause"
+          "note": "round 4 resumed after the pause"
         },
         {
           "at": "2026-11-15T16:16:15Z",
@@ -150,7 +150,7 @@
           "at": "2026-11-15T17:14:57Z",
           "phase": "4b-review",
           "event": "end",
-          "note": "round 6 stopped at the owner's request; iteration closed"
+          "note": "round 6 stopped before completion; iteration closed"
         },
         {
           "at": "2026-11-15T17:14:57Z",
@@ -272,7 +272,7 @@
         {
           "from": "2026-11-15T13:48:13Z",
           "to": "2026-11-15T15:40:59Z",
-          "reason": "Claude usage limit reached; resumed after reset"
+          "reason": "idle pause, no work"
         }
       ]
     }
