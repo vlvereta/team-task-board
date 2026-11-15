@@ -5,7 +5,7 @@
       "first_prompt_at": "2026-11-15T11:26:55Z",
       "started_at": "2026-11-15T11:27:01Z",
       "deployed_at": "2026-11-15T11:55:17Z",
-      "ready_at": null,
+      "ready_at": "2026-11-15T17:14:57Z",
       "events": [
         {
           "at": "2026-11-15T11:27:01Z",
@@ -133,6 +133,29 @@
           "phase": "4b-review",
           "event": "start",
           "note": "round 5 (functional)"
+        },
+        {
+          "at": "2026-11-15T16:53:36Z",
+          "phase": "4b-review",
+          "event": "note",
+          "note": "round 5 fixes pushed (H1-H5)"
+        },
+        {
+          "at": "2026-11-15T16:56:10Z",
+          "phase": "4b-review",
+          "event": "start",
+          "note": "round 6 (functional)"
+        },
+        {
+          "at": "2026-11-15T17:14:57Z",
+          "phase": "4b-review",
+          "event": "end",
+          "note": "round 6 stopped at the owner's request; iteration closed"
+        },
+        {
+          "at": "2026-11-15T17:14:57Z",
+          "phase": "milestone",
+          "event": "ready_at"
         }
       ],
       "delegations": [
@@ -219,6 +242,13 @@
           "purpose": "Round 5 full functional review of the live site",
           "start": "2026-11-15T16:16:15Z",
           "end": "2026-11-15T16:49:26Z"
+        },
+        {
+          "id": "functional-r6",
+          "model": "sonnet",
+          "purpose": "Round 6 full functional review of the live site",
+          "start": "2026-11-15T16:56:10Z",
+          "end": "2026-11-15T17:14:57Z"
         }
       ],
       "segments": [
@@ -233,9 +263,9 @@
           "to": "2026-11-15T11:55:17Z"
         },
         {
-          "name": "review and improve (rounds 0-4 on the live site)",
+          "name": "review and improve (review rounds 0-6, fixes, redeploys)",
           "from": "2026-11-15T11:55:17Z",
-          "to": null
+          "to": "2026-11-15T17:14:57Z"
         }
       ],
       "pauses": [
