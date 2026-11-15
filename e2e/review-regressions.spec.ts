@@ -57,6 +57,7 @@ test('closing the edit dialog with unsaved changes asks before discarding them',
 test('closing an unchanged dialog does not ask', async ({ page }) => {
   await demoLogin(page);
   await cardByTitle(page, 'Define the new sitemap').click();
+  await expect(page.getByRole('dialog', { name: 'Edit task' })).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('alertdialog')).toHaveCount(0);

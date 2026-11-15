@@ -85,6 +85,12 @@
           "phase": "4b-review",
           "event": "start",
           "note": "round 2"
+        },
+        {
+          "at": "2026-11-15T12:54:52Z",
+          "phase": "4b-review",
+          "event": "note",
+          "note": "round 2 fixes pushed (F5-F9, N1-N8)"
         }
       ],
       "delegations": [

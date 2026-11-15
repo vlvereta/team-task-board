@@ -3,6 +3,9 @@ import type { ReactNode, RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { CloseButton } from './CloseButton';
 
+/** Open dialogs, innermost last; only the innermost one reacts to Escape. */
+const openDialogs: object[] = [];
+
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -66,12 +69,24 @@ export function Dialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
-    if (e.key === 'Escape') {
-      e.stopPropagation();
+  // Escape closes the topmost open dialog, wherever focus currently is.
+  useEffect(() => {
+    const token = {};
+    openDialogs.push(token);
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || openDialogs[openDialogs.length - 1] !== token) return;
+      if (e.defaultPrevented) return;
+      e.preventDefault();
       onCloseRef.current();
-      return;
-    }
+    };
+    document.addEventListener('keydown', onEscape);
+    return () => {
+      document.removeEventListener('keydown', onEscape);
+      openDialogs.splice(openDialogs.indexOf(token), 1);
+    };
+  }, []);
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     if (e.key !== 'Tab') return;
     e.stopPropagation();
     const panel = panelRef.current;
