@@ -1,1 +1,125 @@
 @import 'tailwindcss';
+
+/* Crewboard theme: deep teal board, neutral column panels, white cards,
+   amber accent. All sizes are rem-based so the UI follows the user's font size. */
+@theme {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  --color-board: #0d5c55;
+  --color-board-deep: #0a4743;
+  --color-board-ink: #f0fdfa;
+  --color-panel: #ebf0ef;
+  --color-panel-ink: #1e293b;
+  --color-accent: #fbbf24;
+  --color-brand: #0f766e;
+  --color-brand-strong: #0d5c55;
+
+  --spacing-touch: var(--touch-size);
+  --spacing-column: 18rem;
+
+  --animate-toast-in: toast-in 160ms ease-out;
+}
+
+:root {
+  --touch-size: 2.5rem;
+}
+
+@media (pointer: coarse) {
+  :root {
+    /* 44px at the default font size */
+    --touch-size: 2.75rem;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Focus ring for light surfaces (columns, cards, forms). */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 3px solid var(--color-board);
+    outline-offset: 2px;
+  }
+}
+
+/* Focus ring for the dark teal board surface. */
+@utility focus-ring-light {
+  &:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-panel font-sans text-slate-900 antialiased;
+  }
+
+  /* Never let a long word push a layout wider than its box. */
+  h1,
+  h2,
+  h3,
+  p,
+  li,
+  label,
+  dd,
+  dt {
+    overflow-wrap: anywhere;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
