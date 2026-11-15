@@ -1,5 +1,7 @@
 # Plan
 
+> The plan as written at the start of the build. Where the result differs (for example, the board data hook lives in `src/app/BoardDataContext.tsx` rather than a `src/hooks/` folder, and the task dialog uses React Router's data router), see [`DECISIONS.md`](DECISIONS.md) and [`REVIEW.md`](REVIEW.md).
+
 ## Product name
 
 **Crewboard**: a task board for a small crew. Short, neutral, and descriptive, and not a well-known product name.

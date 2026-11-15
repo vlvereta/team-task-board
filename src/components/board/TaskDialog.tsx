@@ -49,8 +49,8 @@ export function TaskDialog({ task, onClose }: { task: Task; onClose: () => void 
     draft.assigneeId !== original.assigneeId ||
     draft.status !== original.status;
 
-  // Any way of leaving (X, Esc, backdrop, Cancel, browser Back) is a route
-  // change; block it while there are unsaved edits and ask first.
+  // Set just before a deliberate close (after saving, deleting or discarding)
+  // so the unsaved-changes guard lets that navigation through.
   const allowLeave = useRef(false);
 
   // X, Esc, backdrop and Cancel check for unsaved edits themselves (this does

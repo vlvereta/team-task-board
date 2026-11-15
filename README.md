@@ -132,13 +132,13 @@ This project was built by an AI coding agent (Claude Code) from a written spec, 
 
 <!-- BUILD-NUMBERS:START -->
 
-| Iteration 1         |                                                                                                                                     |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Time                | 3 h 55 min active (5 h 48 min wall-clock, including a 1 h 53 min pause at a usage limit); live 28 minutes after the first prompt    |
-| Tokens              | 112.7 million in total (0.86 million output; most of the rest is cache reads)                                                       |
-| API-equivalent cost | US$39.07 at Anthropic list prices (Opus 5.5 $25.05, Sonnet 5.5 $14.02)                                                              |
-| Models              | Claude Opus 5.5 (main session), Claude Sonnet 5.5 (13 subagents: mock server, Playwright suite, independent reviews)                |
-| Reviews             | 7 independent functional and 3 design review rounds on the live site; every functional issue found was fixed with a regression test |
+| Iteration 1         |                                                                                                                                                         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Time                | 3 h 55 min active (5 h 48 min wall-clock, including a 1 h 53 min pause at a usage limit); live 28 minutes after the first prompt                        |
+| Tokens              | 112.7 million in total (0.86 million output; most of the rest is cache reads)                                                                           |
+| API-equivalent cost | US$39.07 at Anthropic list prices (Opus 5.5 $25.05, Sonnet 5.5 $14.02)                                                                                  |
+| Models              | Claude Opus 5.5 (main session), Claude Sonnet 5.5 (13 subagents: mock server, Playwright suite, independent reviews)                                    |
+| Reviews             | 6 completed independent functional review rounds (a 7th was stopped) and 3 design rounds; every functional issue found was fixed with a regression test |
 
 The final review round was stopped at the owner's request after round 5's fixes were deployed; see the report for what that means.
 <!-- BUILD-NUMBERS:END -->

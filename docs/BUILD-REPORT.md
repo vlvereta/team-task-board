@@ -26,11 +26,11 @@ This report covers **iteration 1**, from the first prompt (2026-11-15 11:26:55 U
 
 **Active time by phase.** Phases overlapped slightly: the round 0 review ran while the repo was being created.
 
-| Phase                                                                                | Time                                                          | Tokens     | Output tokens | Cost   |
-| ------------------------------------------------------------------------------------ | ------------------------------------------------------------- | ---------- | ------------- | ------ |
-| Build: plan, scaffold, mock API, UI, drag and drop, unit and e2e tests, local checks | 25 min (11:26:55 → 11:52:14)                                  | 16,038,062 | 196,035       | $7.85  |
-| First deployment: repo, Pages, CI and deploy, live smoke test                        | 3 min (11:52:14 → 11:55:17)                                   | 1,201,460  | 11,711        | $0.37  |
-| Review and improve: 7 functional and 3 design rounds, fixes, redeploys               | 3 h 27 min active (5 h 20 min wall-clock including the pause) | 95,471,898 | 654,927       | $30.85 |
+| Phase                                                                                                | Time                                                          | Tokens     | Output tokens | Cost   |
+| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ---------- | ------------- | ------ |
+| Build: plan, scaffold, mock API, UI, drag and drop, unit and e2e tests, local checks                 | 25 min (11:26:55 → 11:52:14)                                  | 16,038,062 | 196,035       | $7.85  |
+| First deployment: repo, Pages, CI and deploy, live smoke test                                        | 3 min (11:52:14 → 11:55:17)                                   | 1,201,460  | 11,711        | $0.37  |
+| Review and improve: 6 completed functional rounds (a 7th stopped), 3 design rounds, fixes, redeploys | 3 h 27 min active (5 h 20 min wall-clock including the pause) | 95,471,898 | 654,927       | $30.85 |
 
 **Tokens by type**
 

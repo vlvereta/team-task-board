@@ -56,8 +56,6 @@ export function BoardPage() {
   const setCreatingIn = (status: TaskStatus | null) =>
     setCreating(status ? { status, key: location.key } : null);
 
-  // Remember that the dialog was opened from the board, so closing it can
-  // step back in history instead of adding a new entry.
   // After signing in (or any navigation that leaves focus on the page body),
   // move focus to the board so keyboard users start in the right place.
   const mainRef = useRef<HTMLElement>(null);
@@ -73,10 +71,7 @@ export function BoardPage() {
   const openTask = (id: string) => {
     // A double-click would otherwise push two history entries.
     if (window.location.hash.includes('/board/tasks/')) return;
-    navigate(
-      { pathname: `/board/tasks/${id}`, search: location.search },
-      { state: { fromBoard: true } },
-    );
+    navigate({ pathname: `/board/tasks/${id}`, search: location.search });
   };
   return (
     <main
