@@ -54,3 +54,28 @@ test('touch targets in the header and auth links are at least 44 px on touch dev
   }
   await context.close();
 });
+
+// Regression for design review round 2 (N1): at 320 px with 200% text the
+// demo-account rows collapsed to one character per line.
+test('login at 320 px and 200% text keeps demo account names on readable lines', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await page.addInitScript(() => {
+    document.addEventListener('DOMContentLoaded', () => {
+      const style = document.createElement('style');
+      style.textContent = 'html { font-size: 200% !important; }';
+      document.head.append(style);
+    });
+  });
+  await page.goto('./#/login');
+  const name = page.getByText('Ana Silva', { exact: true });
+  await expect(name).toBeVisible();
+  // Before the fix the name box was one character (~20 px) wide.
+  expect((await name.boundingBox())!.width).toBeGreaterThan(100);
+  const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  expect(height).toBeLessThan(4000); // was 6585 px
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+});

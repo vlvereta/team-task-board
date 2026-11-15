@@ -73,6 +73,18 @@
           "phase": "4b-review",
           "event": "start",
           "note": "round 1"
+        },
+        {
+          "at": "2026-11-15T12:29:43Z",
+          "phase": "4b-review",
+          "event": "note",
+          "note": "round 1 fixes pushed (F1-F4, D1-D13)"
+        },
+        {
+          "at": "2026-11-15T12:31:57Z",
+          "phase": "4b-review",
+          "event": "start",
+          "note": "round 2"
         }
       ],
       "delegations": [
@@ -110,6 +122,20 @@
           "purpose": "Round 1 design and usability review from screenshots",
           "start": "2026-11-15T12:10:32Z",
           "end": "2026-11-15T12:27:56Z"
+        },
+        {
+          "id": "functional-r2",
+          "model": "sonnet",
+          "purpose": "Round 2 full functional review of the live site",
+          "start": "2026-11-15T12:31:57Z",
+          "end": null
+        },
+        {
+          "id": "design-r2",
+          "model": "sonnet",
+          "purpose": "Round 2 design re-review of changed areas",
+          "start": "2026-11-15T12:31:58Z",
+          "end": "2026-11-15T12:40:04Z"
         }
       ]
     }

@@ -223,7 +223,9 @@ export function BoardColumns({
         Press Enter to open. Press Space to pick up and move with the arrow keys.
       </p>
       <div
-        className="relative flex flex-1 snap-x lg:min-h-0 snap-mandatory items-start gap-3 overflow-x-auto overscroll-x-contain px-3 pt-3 pb-4 sm:snap-none sm:px-5"
+        className={`relative flex flex-1 snap-x items-start gap-3 overflow-x-auto overscroll-x-contain px-3 pt-3 pb-4 sm:snap-none sm:px-5 lg:min-h-0 ${
+          activeId ? 'snap-none' : 'snap-mandatory'
+        }`}
         data-testid="column-strip"
       >
         {TASK_STATUSES.map((status) => (

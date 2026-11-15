@@ -11,7 +11,7 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ title, subtitle, children, aside }: AuthLayoutProps) {
   return (
-    <div className="min-h-dvh bg-board px-4 py-6 sm:py-12">
+    <div className="min-h-dvh bg-board px-2 py-4 sm:px-4 sm:py-12">
       <main
         className={`mx-auto flex w-full flex-col gap-5 ${aside ? 'max-w-md md:max-w-4xl' : 'max-w-md'}`}
       >
@@ -20,7 +20,7 @@ export function AuthLayout({ title, subtitle, children, aside }: AuthLayoutProps
           <span className="text-xl font-bold tracking-tight">Crewboard</span>
         </div>
         <div className={aside ? 'flex flex-col gap-5 md:grid md:grid-cols-2 md:items-start' : ''}>
-          <div className="rounded-2xl bg-white p-5 shadow-xl sm:p-8 md:order-1">
+          <div className="rounded-2xl bg-white p-4 shadow-xl sm:p-8 md:order-1">
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
             <p className="mt-1 text-sm text-slate-600">{subtitle}</p>
             <div className="mt-6">{children}</div>

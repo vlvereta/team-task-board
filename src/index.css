@@ -89,7 +89,9 @@
     @apply bg-panel font-sans text-slate-900 antialiased;
   }
 
-  /* Never let a long word push a layout wider than its box. */
+  /* Break a word only when it cannot fit on a line of its own. (`anywhere`
+     would also shrink flex items to one character wide at large text sizes.)
+     Places that hold user-entered text add [overflow-wrap:anywhere]. */
   h1,
   h2,
   h3,
@@ -98,7 +100,7 @@
   label,
   dd,
   dt {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
 
   input,

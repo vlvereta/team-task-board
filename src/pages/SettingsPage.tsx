@@ -24,7 +24,7 @@ function Section({
   return (
     <section
       aria-labelledby={id}
-      className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-900/5 sm:p-6"
+      className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5 sm:p-6"
     >
       <h2 id={id} className="text-base font-semibold text-slate-900">
         {title}
@@ -119,7 +119,7 @@ export function SettingsPage() {
 
   return (
     <main className="min-h-0 flex-1 overflow-y-auto bg-panel" aria-labelledby="settings-title">
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-4 py-6 sm:py-10">
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-2 py-4 sm:px-4 sm:py-10">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 id="settings-title" className="text-2xl font-bold tracking-tight text-slate-900">
             Settings

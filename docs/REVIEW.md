@@ -126,3 +126,18 @@ No blockers. Objective defects fixed; taste items listed for the owner in `docs/
 | D11 | nice-to-have | ~37% empty teal to the right of the columns at 1440 px. | Taste; **left for the owner** (fixed-width columns are the Kanban convention the spec asks for). |
 | D14 | nice-to-have | Confirmations stack over the still-visible edit dialog. | Kept: the context of what is being deleted stays visible; **left for the owner**. |
 | D15 | nice-to-have | "Unassigned" text 4.76:1, a narrow AA pass. | No change needed (passes AA). |
+
+## Round 2: design re-review (live site)
+
+Verification of round 1: D3, D4, D5, D6, D7, D8, D9, D12, D13 confirmed fixed; D1 and D10 partly fixed (see N1, N2); D2, D11, D14 left for the owner; D15 no change needed.
+
+| # | Rating | Finding | Outcome |
+|---|---|---|---|
+| N1 | blocker | Login at 320 px + 200% text: demo-account rows collapsed to one character per line (page 6585 px tall). Root cause: the global `overflow-wrap: anywhere` lets flex items shrink to one character. | Fixed: global rule is now `overflow-wrap: break-word` (user-entered text keeps `anywhere` explicitly), tighter padding on narrow screens, decorative arrow hidden below 30rem, email on its own line. Regression test in `e2e/layout-regression.spec.ts`. |
+| N2 | should-fix | Toast text broke mid-word at 200% on phones; on phones the toast sits over a dialog's title/close button while visible. | Mid-word breaks fixed (same root cause). Toast now shows for 5 s instead of 6 s and can be dismissed. Toast position over an open dialog on phones is **left for the owner** (bottom covered the action buttons, top covers the title; the reviewer was unsure which is better). |
+| N3 | should-fix | Settings at 320 px + 200%: very tall page, little room for text. | Fixed: smaller page and card padding on narrow screens. |
+| N4 | should-fix | "Unassigned" broke mid-word; "Add a card" wrapped. | Fixed: same root cause; "Unassigned" no longer wraps. "Add a card" wrapping to two lines at 200% on 320 px is expected. |
+| N5 | nice-to-have | Confirmation buttons looked offset when they wrapped at 200%. | Fixed: buttons stack full-width on phones. |
+| N6 | nice-to-have | Demo emails broke mid-word at 320 px. | Fixed: email on its own line; it only breaks if it cannot fit. |
+| N7 | nice-to-have (taste) | Two-row header at 1440 px + 200%; card list clips at the column foot without a scroll hint. | **Left for the owner.** |
+| N8 | nice-to-have | Dragging on a phone did not auto-scroll to the next column. | Fixed: scroll snapping is switched off while a drag is in progress so auto-scroll can move the strip. Real-device check is in the owner checklist. |

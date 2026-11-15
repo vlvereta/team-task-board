@@ -32,7 +32,7 @@ function CardBody({ task, assignee }: CardBodyProps) {
         {assignee ? (
           <Avatar name={assignee.name} color={assignee.avatarColor} />
         ) : (
-          <span className="text-xs text-slate-500">Unassigned</span>
+          <span className="text-xs whitespace-nowrap text-slate-500">Unassigned</span>
         )}
       </div>
     </>
