@@ -57,7 +57,7 @@ export function BoardPage() {
     <main className="flex min-h-0 flex-1 flex-col" aria-label="Board">
       {mine && (
         <div
-          className="flex flex-wrap items-center gap-x-3 gap-y-1 bg-accent px-3 py-1.5 text-sm text-slate-900 sm:px-5"
+          className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-amber-300 bg-amber-100 px-3 py-1 text-sm text-amber-950 sm:px-5"
           role="status"
           data-testid="filter-banner"
         >
@@ -67,7 +67,7 @@ export function BoardPage() {
           <button
             type="button"
             onClick={() => setMine(false)}
-            className="focus-ring inline-flex min-h-touch items-center rounded-md px-2 font-semibold underline underline-offset-2 hover:bg-amber-300"
+            className="focus-ring inline-flex min-h-touch items-center rounded-md px-2 font-semibold underline underline-offset-2 hover:bg-amber-200"
           >
             Show all tasks
           </button>

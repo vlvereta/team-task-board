@@ -61,6 +61,18 @@
           "phase": "4-deploy",
           "event": "end",
           "note": "CI + deploy green first try; live smoke passed"
+        },
+        {
+          "at": "2026-11-15T12:07:51Z",
+          "phase": "3-test",
+          "event": "end",
+          "note": "review round 0: 31 pass / 1 fail / 2 partial; all fixed"
+        },
+        {
+          "at": "2026-11-15T12:10:32Z",
+          "phase": "4b-review",
+          "event": "start",
+          "note": "round 1"
         }
       ],
       "delegations": [
@@ -84,6 +96,20 @@
           "purpose": "Independent acceptance review (fresh, spec + running app only)",
           "start": "2026-11-15T11:51:47Z",
           "end": "2026-11-15T12:04:54Z"
+        },
+        {
+          "id": "functional-r1",
+          "model": "sonnet",
+          "purpose": "Round 1 functional review of the live site",
+          "start": "2026-11-15T12:10:32Z",
+          "end": null
+        },
+        {
+          "id": "design-r1",
+          "model": "sonnet",
+          "purpose": "Round 1 design and usability review from screenshots",
+          "start": "2026-11-15T12:10:32Z",
+          "end": null
         }
       ]
     }

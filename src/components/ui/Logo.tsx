@@ -1,10 +1,11 @@
+/** Crewboard mark: three cards moving across, the last one done (amber). */
 export function LogoMark({ className = 'size-8' }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
-      <rect width="32" height="32" rx="7" fill="#0a4743" />
-      <rect x="6" y="7" width="5.5" height="18" rx="1.5" fill="#fff" />
-      <rect x="13.25" y="7" width="5.5" height="12" rx="1.5" fill="#fff" opacity=".85" />
-      <rect x="20.5" y="7" width="5.5" height="8" rx="1.5" fill="#fbbf24" />
+      <circle cx="16" cy="16" r="16" fill="#0a4743" />
+      <rect x="6" y="8.5" width="12" height="4" rx="2" fill="#fff" />
+      <rect x="10" y="14" width="12" height="4" rx="2" fill="#fff" opacity=".85" />
+      <rect x="14" y="19.5" width="12" height="4" rx="2" fill="#fbbf24" />
     </svg>
   );
 }

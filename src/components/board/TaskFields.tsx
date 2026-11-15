@@ -50,7 +50,7 @@ export function TaskFields({
         }}
         error={errors.title}
         disabled={disabled}
-        className="resize-none font-medium"
+        className="max-h-48 resize-y font-medium [field-sizing:content]"
       />
       <TextArea
         label="Description"

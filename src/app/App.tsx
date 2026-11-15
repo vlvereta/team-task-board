@@ -12,8 +12,12 @@ import { ToastProvider } from './ToastContext';
 
 function FullPageSpinner() {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-board text-board-ink">
-      <Spinner className="size-8" label="Checking your session" />
+    <div
+      role="status"
+      className="flex min-h-dvh items-center justify-center gap-3 bg-board text-board-ink"
+    >
+      <Spinner className="size-6" />
+      <span className="text-sm font-medium">Loading Crewboard…</span>
     </div>
   );
 }

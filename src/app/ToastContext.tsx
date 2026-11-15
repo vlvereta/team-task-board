@@ -40,7 +40,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       const id = nextId.current++;
       // Keep at most three; a repeated identical message replaces the old one.
       setToasts((ts) => [
-        ...ts.filter((t) => t.message !== message).slice(-2),
+        ...ts
+          .filter((t) => t.message !== message && (tone === 'error' ? true : t.tone === 'error'))
+          .slice(-1),
         { id, message, tone },
       ]);
       timers.current.set(
@@ -61,7 +63,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex flex-col items-center gap-2 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <div className="pointer-events-none fixed inset-x-0 top-0 z-50 flex flex-col items-center gap-2 p-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:top-auto sm:bottom-0 sm:p-4 sm:pb-[max(1rem,env(safe-area-inset-bottom))]">
         {/* Live regions are always rendered so screen readers pick up new text. */}
         <div role="alert" className="contents">
           {toasts
@@ -91,14 +93,28 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: number)
         : 'bg-slate-900 text-white';
   return (
     <div
-      className={`pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-lg px-4 py-3 text-sm shadow-lg motion-safe:animate-[toast-in_160ms_ease-out] ${tone}`}
+      className={`pointer-events-auto flex w-full max-w-md items-center gap-2 rounded-lg py-1 pr-1 pl-4 text-sm shadow-lg motion-safe:animate-[toast-in_160ms_ease-out] ${tone}`}
       data-testid="toast"
     >
-      <p className="min-w-0 flex-1 break-words">{toast.message}</p>
+      {toast.tone === 'success' && (
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 20 20"
+          className="size-4 shrink-0 text-emerald-300"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.6l7.3-7.3a1 1 0 0 1 1.4 0Z"
+            clipRule="evenodd"
+          />
+        </svg>
+      )}
+      <p className="min-w-0 flex-1 py-2 break-words">{toast.message}</p>
       <button
         type="button"
         onClick={() => onDismiss(toast.id)}
-        className="focus-ring-light -my-1 -mr-2 inline-flex min-h-touch min-w-touch shrink-0 items-center justify-center rounded-md text-white/85 hover:bg-white/15 hover:text-white"
+        className="focus-ring-light inline-flex min-h-touch min-w-touch shrink-0 items-center justify-center rounded-md text-white/85 hover:bg-white/15 hover:text-white"
         aria-label="Dismiss message"
       >
         <svg aria-hidden="true" viewBox="0 0 20 20" className="size-4" fill="currentColor">

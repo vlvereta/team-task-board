@@ -10,7 +10,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-brand text-white hover:bg-brand-strong shadow-sm',
+  primary:
+    'bg-brand text-white hover:bg-brand-strong shadow-sm disabled:bg-slate-200 disabled:text-slate-600 disabled:opacity-100',
   secondary: 'bg-white text-slate-800 ring-1 ring-inset ring-slate-300 hover:bg-slate-50',
   danger: 'bg-red-700 text-white hover:bg-red-800 shadow-sm',
   ghost: 'text-slate-700 hover:bg-slate-900/5',
@@ -35,7 +36,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       type={type}
       disabled={disabled || busy}
       aria-busy={busy || undefined}
-      className={`focus-ring inline-flex min-h-touch items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${variants[variant]} ${className}`}
+      className={`focus-ring inline-flex min-h-touch items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-75 disabled:shadow-none ${variants[variant]} ${className}`}
       {...rest}
     >
       {busy && <Spinner className="size-4" />}

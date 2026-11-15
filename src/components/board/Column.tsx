@@ -11,9 +11,19 @@ interface ColumnProps {
   filtered: boolean;
   onOpen: (id: string) => void;
   onAdd: (status: TaskStatus) => void;
+  /** True while a dragged card is over this column. */
+  isDropTarget?: boolean;
 }
 
-export function Column({ status, tasks, usersById, filtered, onOpen, onAdd }: ColumnProps) {
+export function Column({
+  status,
+  tasks,
+  usersById,
+  filtered,
+  onOpen,
+  onAdd,
+  isDropTarget = false,
+}: ColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: `column:${status}`,
     data: { type: 'column', status },
@@ -26,11 +36,13 @@ export function Column({ status, tasks, usersById, filtered, onOpen, onAdd }: Co
     <section
       aria-labelledby={headingId}
       data-testid={`column-${status}`}
-      className="flex w-[min(var(--spacing-column),calc(100vw-2.5rem))] shrink-0 snap-center flex-col rounded-xl lg:max-h-full bg-panel shadow-sm sm:snap-start"
+      className={`flex w-[min(var(--spacing-column),calc(100vw-2.5rem))] shrink-0 snap-center flex-col rounded-xl lg:max-h-full bg-panel shadow-sm transition-shadow sm:snap-start ${
+        isDropTarget ? 'ring-3 ring-accent' : ''
+      }`}
     >
       <h2
         id={headingId}
-        className="flex items-center gap-2 px-3 pt-3 pb-2 text-sm font-semibold text-panel-ink"
+        className="flex items-center gap-2 px-3 pt-3 pb-0.5 text-sm font-semibold text-panel-ink"
       >
         <span
           aria-hidden="true"
@@ -49,7 +61,7 @@ export function Column({ status, tasks, usersById, filtered, onOpen, onAdd }: Co
         <ul
           ref={setNodeRef}
           aria-labelledby={headingId}
-          className={`flex min-h-20 flex-1 flex-col gap-2 lg:overflow-y-auto lg:overscroll-contain px-2 pb-2 transition-colors ${
+          className={`flex min-h-20 flex-1 flex-col gap-2 pt-1.5 lg:overflow-y-auto lg:overscroll-contain px-2 pb-2 transition-colors ${
             isOver ? 'bg-teal-900/5' : ''
           }`}
         >

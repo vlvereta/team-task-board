@@ -34,7 +34,7 @@ export function AppHeader() {
               className={`focus-ring-light inline-flex min-h-touch items-center gap-2 rounded-lg px-2 text-sm font-semibold transition-colors sm:px-3 ${
                 mine
                   ? 'bg-accent text-slate-900 hover:bg-amber-300'
-                  : 'bg-white/10 text-white hover:bg-white/20'
+                  : 'text-white ring-1 ring-inset ring-white/45 hover:bg-white/15'
               }`}
             >
               <svg aria-hidden="true" viewBox="0 0 20 20" className="size-4" fill="currentColor">

@@ -235,6 +235,7 @@ export function BoardColumns({
             filtered={filtered}
             onOpen={onOpen}
             onAdd={onAdd}
+            isDropTarget={!!activeId && cols[status].includes(activeId)}
           />
         ))}
       </div>
