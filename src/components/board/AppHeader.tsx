@@ -12,10 +12,10 @@ export function AppHeader() {
 
   return (
     <header className="shrink-0 border-b border-white/10 bg-board-deep text-white">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2 sm:px-5">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-2 py-1.5 sm:gap-x-3 sm:px-5 sm:py-2">
         <Link
           to="/board"
-          className="focus-ring-light flex shrink-0 items-center gap-2 rounded-md"
+          className="focus-ring-light flex min-h-touch min-w-touch shrink-0 items-center justify-center gap-2 rounded-md"
           aria-label="Crewboard home"
         >
           <LogoMark className="size-8" />
@@ -25,13 +25,13 @@ export function AppHeader() {
         <div className="flex min-w-0 flex-1 basis-40 items-center">
           <BoardName />
         </div>
-        <nav aria-label="Account" className="flex flex-wrap items-center gap-1 sm:gap-2">
+        <nav aria-label="Account" className="ml-auto flex flex-wrap items-center gap-1 sm:gap-2">
           {onBoard && (
             <button
               type="button"
               aria-pressed={mine}
               onClick={() => setMine(!mine)}
-              className={`focus-ring-light inline-flex min-h-touch items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-colors ${
+              className={`focus-ring-light inline-flex min-h-touch items-center gap-2 rounded-lg px-2 text-sm font-semibold transition-colors sm:px-3 ${
                 mine
                   ? 'bg-accent text-slate-900 hover:bg-amber-300'
                   : 'bg-white/10 text-white hover:bg-white/20'
@@ -46,7 +46,7 @@ export function AppHeader() {
           <NavLink
             to="/settings"
             className={({ isActive }) =>
-              `focus-ring-light inline-flex min-h-touch items-center gap-2 rounded-lg px-3 text-sm font-semibold hover:bg-white/15 ${isActive ? 'bg-white/15' : ''}`
+              `focus-ring-light inline-flex min-h-touch min-w-touch items-center justify-center gap-2 rounded-lg px-2 text-sm font-semibold hover:bg-white/15 sm:px-3 ${isActive ? 'bg-white/15' : ''}`
             }
           >
             <svg aria-hidden="true" viewBox="0 0 20 20" className="size-4" fill="currentColor">
@@ -59,7 +59,7 @@ export function AppHeader() {
             <span className="max-sm:sr-only">Settings</span>
           </NavLink>
           {user && (
-            <span className="flex items-center gap-2 pl-1">
+            <span className="hidden items-center gap-2 pl-1 sm:flex">
               <Avatar name={user.name} color={user.avatarColor} labelled={false} />
               <span className="hidden max-w-40 truncate text-sm lg:inline">{user.name}</span>
               <span className="sr-only">Signed in as {user.name}</span>
@@ -68,9 +68,17 @@ export function AppHeader() {
           <button
             type="button"
             onClick={logout}
-            className="focus-ring-light inline-flex min-h-touch items-center rounded-lg px-3 text-sm font-semibold hover:bg-white/15"
+            className="focus-ring-light inline-flex min-h-touch min-w-touch items-center justify-center gap-2 rounded-lg px-2 text-sm font-semibold hover:bg-white/15 sm:px-3"
           >
-            Log out
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 20 20"
+              className="size-4 sm:hidden"
+              fill="currentColor"
+            >
+              <path d="M3 4.5A1.5 1.5 0 0 1 4.5 3h6A1.5 1.5 0 0 1 12 4.5V7h-1.5V4.5h-6v11h6V13H12v2.5a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 3 15.5v-11Zm11.2 2.2 3.3 3.3-3.3 3.3-1.06-1.06 1.49-1.49H7.5v-1.5h7.13l-1.49-1.49 1.06-1.06Z" />
+            </svg>
+            <span className="max-sm:sr-only">Log out</span>
           </button>
         </nav>
       </div>

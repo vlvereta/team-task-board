@@ -108,7 +108,7 @@ export function SignupPage() {
         Already have an account?{' '}
         <Link
           to="/login"
-          className="focus-ring rounded font-semibold text-brand underline-offset-2 hover:underline"
+          className="focus-ring inline-flex min-h-touch items-center rounded px-1 font-semibold text-brand underline-offset-2 hover:underline"
         >
           Sign in
         </Link>

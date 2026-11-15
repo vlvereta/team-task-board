@@ -29,7 +29,7 @@ function RequireAuth() {
   }
   return (
     <BoardDataProvider>
-      <div className="flex h-dvh flex-col bg-board">
+      <div className="flex min-h-dvh flex-col bg-board lg:h-dvh">
         <AppHeader />
         <Outlet />
       </div>

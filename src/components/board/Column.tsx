@@ -26,7 +26,7 @@ export function Column({ status, tasks, usersById, filtered, onOpen, onAdd }: Co
     <section
       aria-labelledby={headingId}
       data-testid={`column-${status}`}
-      className="flex max-h-full w-[min(var(--spacing-column),calc(100vw-2.5rem))] shrink-0 snap-center flex-col rounded-xl bg-panel shadow-sm sm:snap-start"
+      className="flex w-[min(var(--spacing-column),calc(100vw-2.5rem))] shrink-0 snap-center flex-col rounded-xl lg:max-h-full bg-panel shadow-sm sm:snap-start"
     >
       <h2
         id={headingId}
@@ -49,7 +49,7 @@ export function Column({ status, tasks, usersById, filtered, onOpen, onAdd }: Co
         <ul
           ref={setNodeRef}
           aria-labelledby={headingId}
-          className={`flex min-h-20 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain px-2 pb-2 transition-colors ${
+          className={`flex min-h-20 flex-1 flex-col gap-2 lg:overflow-y-auto lg:overscroll-contain px-2 pb-2 transition-colors ${
             isOver ? 'bg-teal-900/5' : ''
           }`}
         >

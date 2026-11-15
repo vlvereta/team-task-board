@@ -81,7 +81,7 @@ export function BoardName() {
           setDraft(board.name);
           setEditing(true);
         }}
-        className="focus-ring-light group flex min-h-touch max-w-full items-center gap-2 rounded-md px-2 text-left text-lg font-bold text-white hover:bg-white/15"
+        className="focus-ring-light group flex min-h-touch max-w-full items-center gap-2 rounded-md px-2 text-left text-base font-bold text-white hover:bg-white/15 sm:text-lg"
         title="Rename board"
       >
         <span className="line-clamp-2 [overflow-wrap:anywhere]">{board.name}</span>

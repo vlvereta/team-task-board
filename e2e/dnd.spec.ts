@@ -88,12 +88,15 @@ test.describe('drag and drop', () => {
     await card.focus();
     await page.keyboard.press('Space');
     await expect(liveRegion(page)).toContainText('is over');
-    // The first ArrowRight can land on a neighbouring card before crossing columns.
-    for (let i = 0; i < 3; i++) {
-      if (((await liveRegion(page).textContent()) ?? '').includes('is over In Progress')) break;
-      await pressDuringDrag(page, 'ArrowRight');
-    }
+    // Regression: a single ArrowRight must reach the next column, and the
+    // announced position must never exceed the announced total.
+    await pressDuringDrag(page, 'ArrowRight');
     await expect(liveRegion(page)).toContainText('is over In Progress');
+    const text = (await liveRegion(page).textContent()) ?? '';
+    const m = /position (\d+) of (\d+)/.exec(text);
+    expect(m, text).not.toBeNull();
+    expect(Number(m![1])).toBeLessThanOrEqual(Number(m![2]));
+    expect(Number(m![2])).toBe(5);
     await page.keyboard.press('Space');
 
     await expect(column(page, 'in_progress').locator(`[data-task-id="${moving}"]`)).toBeVisible();

@@ -4,7 +4,7 @@
       "label": "iteration-1",
       "first_prompt_at": "2026-11-15T11:26:55Z",
       "started_at": "2026-11-15T11:27:01Z",
-      "deployed_at": null,
+      "deployed_at": "2026-11-15T11:55:17Z",
       "ready_at": null,
       "events": [
         {
@@ -33,6 +33,34 @@
           "phase": "2-build",
           "event": "start",
           "note": "scaffold"
+        },
+        {
+          "at": "2026-11-15T11:51:38Z",
+          "phase": "2-build",
+          "event": "end"
+        },
+        {
+          "at": "2026-11-15T11:51:38Z",
+          "phase": "3-test",
+          "event": "start",
+          "note": "local checks green; starting independent review"
+        },
+        {
+          "at": "2026-11-15T11:52:14Z",
+          "phase": "4-deploy",
+          "event": "start",
+          "note": "create repo, push, enable Pages (review round 0 running in parallel)"
+        },
+        {
+          "at": "2026-11-15T11:55:17Z",
+          "phase": "milestone",
+          "event": "deployed_at"
+        },
+        {
+          "at": "2026-11-15T11:55:17Z",
+          "phase": "4-deploy",
+          "event": "end",
+          "note": "CI + deploy green first try; live smoke passed"
         }
       ],
       "delegations": [
@@ -49,6 +77,13 @@
           "purpose": "Playwright suite: functional flows, layout checks, screenshots",
           "start": "2026-11-15T11:41:57Z",
           "end": "2026-11-15T11:50:51Z"
+        },
+        {
+          "id": "review-1",
+          "model": "sonnet",
+          "purpose": "Independent acceptance review (fresh, spec + running app only)",
+          "start": "2026-11-15T11:51:47Z",
+          "end": "2026-11-15T12:04:54Z"
         }
       ]
     }

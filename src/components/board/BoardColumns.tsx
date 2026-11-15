@@ -16,6 +16,7 @@ import type {
   UniqueIdentifier,
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import type { KeyboardCoordinateGetter } from '@dnd-kit/core';
 import { useMemo, useState } from 'react';
 import { TASK_STATUSES } from '../../api/types';
 import type { Task, TaskStatus, User } from '../../api/types';
@@ -54,6 +55,38 @@ function columnOf(id: UniqueIdentifier, cols: Columns): TaskStatus | undefined {
   return TASK_STATUSES.find((st) => cols[st].includes(s));
 }
 
+/**
+ * Left/Right jump straight to the neighbouring column (dnd-kit's default
+ * getter can first land on a nearby card in the same column); Up/Down use
+ * the standard sortable behaviour.
+ */
+const boardKeyboardCoordinates: KeyboardCoordinateGetter = (event, args) => {
+  if (event.code !== 'ArrowLeft' && event.code !== 'ArrowRight') {
+    return sortableKeyboardCoordinates(event, args);
+  }
+  const { droppableRects, collisionRect } = args.context;
+  if (!collisionRect) return undefined;
+  const columns = TASK_STATUSES.map((s) => droppableRects.get(`column:${s}`)).filter(
+    (r): r is NonNullable<typeof r> => !!r,
+  );
+  const centerX = collisionRect.left + collisionRect.width / 2;
+  let current = columns.findIndex((r) => centerX >= r.left && centerX <= r.left + r.width);
+  if (current < 0) {
+    current = columns.reduce(
+      (best, r, i) =>
+        Math.abs(r.left + r.width / 2 - centerX) <
+        Math.abs((columns[best]?.left ?? 0) + (columns[best]?.width ?? 0) / 2 - centerX)
+          ? i
+          : best,
+      0,
+    );
+  }
+  const target = columns[current + (event.code === 'ArrowRight' ? 1 : -1)];
+  if (!target) return undefined;
+  event.preventDefault();
+  return { x: target.left + (target.width - collisionRect.width) / 2, y: target.top + 4 };
+};
+
 export function BoardColumns({
   tasks,
   visible,
@@ -79,28 +112,40 @@ export function BoardColumns({
     // A short press-and-hold starts a drag on touch, so swiping still scrolls.
     useSensor(TouchSensor, { activationConstraint: { delay: 220, tolerance: 8 } }),
     useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
+      coordinateGetter: boardKeyboardCoordinates,
       keyboardCodes: { start: ['Space'], cancel: ['Escape'], end: ['Space', 'Enter'] },
     }),
   );
 
   const titleOf = (id: UniqueIdentifier) => tasksById.get(String(id))?.title ?? 'card';
-  const describe = (overId: UniqueIdentifier | undefined, c: Columns) => {
+  const describe = (
+    activeId: UniqueIdentifier,
+    overId: UniqueIdentifier | undefined,
+    c: Columns,
+  ) => {
     if (overId === undefined) return 'not over a column';
     const col = columnOf(overId, c);
     if (!col) return 'not over a column';
-    const s = String(overId);
-    const idx = s.startsWith('column:') ? c[col].length : c[col].indexOf(s);
-    return `${COLUMN_TITLES[col]}, position ${Math.max(idx, 0) + 1} of ${Math.max(c[col].length, 1)}`;
+    const active = String(activeId);
+    const over = String(overId);
+    const list = c[col];
+    const inList = list.includes(active);
+    const total = inList ? list.length : list.length + 1;
+    let index: number;
+    if (over.startsWith('column:')) index = inList ? list.indexOf(active) : total - 1;
+    else if (over === active) index = list.indexOf(active);
+    else index = inList ? list.indexOf(over) : Math.max(list.indexOf(over), 0);
+    return `${COLUMN_TITLES[col]}, position ${Math.min(index + 1, total)} of ${total}`;
   };
 
   const announcements: Announcements = {
     onDragStart: ({ active }) =>
       `Picked up ${titleOf(active.id)}. Use arrow keys to move, Space to drop, Escape to cancel.`,
-    onDragOver: ({ active, over }) => `${titleOf(active.id)} is over ${describe(over?.id, cols)}.`,
+    onDragOver: ({ active, over }) =>
+      `${titleOf(active.id)} is over ${describe(active.id, over?.id, cols)}.`,
     onDragEnd: ({ active, over }) =>
       over
-        ? `Dropped ${titleOf(active.id)} in ${describe(over.id, cols)}.`
+        ? `Dropped ${titleOf(active.id)} in ${describe(active.id, over.id, cols)}.`
         : `${titleOf(active.id)} was dropped back.`,
     onDragCancel: ({ active }) =>
       `Moving ${titleOf(active.id)} was cancelled. It is back where it started.`,
@@ -178,7 +223,7 @@ export function BoardColumns({
         Press Enter to open. Press Space to pick up and move with the arrow keys.
       </p>
       <div
-        className="relative flex min-h-0 flex-1 snap-x snap-mandatory items-start gap-3 overflow-x-auto overscroll-x-contain px-3 pt-3 pb-4 sm:snap-none sm:px-5"
+        className="relative flex flex-1 snap-x lg:min-h-0 snap-mandatory items-start gap-3 overflow-x-auto overscroll-x-contain px-3 pt-3 pb-4 sm:snap-none sm:px-5"
         data-testid="column-strip"
       >
         {TASK_STATUSES.map((status) => (
